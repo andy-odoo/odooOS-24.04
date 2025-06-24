@@ -1,5 +1,4 @@
 anydesk
-gnome-mines
 gnome-calculator
 gnome-clocks
 gnome-mahjongg
