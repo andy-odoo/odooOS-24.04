@@ -38,7 +38,7 @@ rm -rf /etc/apt/sources.list.d/mozilla.list
 
 #Install New deb packages
 
-apt update
+apt update && apt upgrade -y && apt autoremove -y 
 
 #Install dbus-x11
 
