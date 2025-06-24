@@ -26,6 +26,10 @@ dpkg -P cnrdrvcups-ufr2-us
 dpkg -P cnrdrvcups-ufr2-uk
 dpkg -P cnrdrvcups-lipslx
 
+#Remove snap store
+
+snap remove snap-store
+
 #Uninstall deb apps
 
 for f in `cat ./uninstall-deb-apps.txt` ; do apt remove -y $f ; done
