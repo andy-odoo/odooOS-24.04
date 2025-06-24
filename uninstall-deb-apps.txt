@@ -1,0 +1,15 @@
+anydesk
+gnome-mines
+gnome-calculator
+gnome-clocks
+firefox*
+obs*
+dconf-editor
+vlc*
+libreoffice*
+gnome-shell-extension-manager
+gnome-shell-extension-prefs
+rustdesk
+aisleriot
+geany
+geary
