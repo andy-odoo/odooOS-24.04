@@ -18,7 +18,7 @@ export DEBIAN_FRONTEND=noninteractive
 
 #Change updates mirror
 
-sed -i -e s,http://be.archive.ubuntu.com/ubuntu/,http://archive.ubuntu.com/ubuntu/,g /etc/apt/sources.list.d/ubuntu.sources
+sed -i -e s,http://be.archive.ubuntu.com/ubuntu/,http://us.archive.ubuntu.com/ubuntu/,g /etc/apt/sources.list.d/ubuntu.sources
 
 #Remove Canon Drivers
 
@@ -40,6 +40,10 @@ rm -rf /etc/apt/sources.list.d/mozilla.list
 
 apt update
 
+#Install dbus-x11
+
+apt install -y dbus-x11
+
 #Warp Terminal
 
 dpkg -i ./warp-terminal_*_amd64.deb
@@ -51,10 +55,6 @@ dpkg -i ./code_*_amd64.deb
 #Balena Etcher
 
 dpkg -i ./balena-etcher_*_amd64.deb
-
-#Install dbus-x11
-
-apt install -y dbus-x11
 
 #Remove Google Chrome user confuration
 
