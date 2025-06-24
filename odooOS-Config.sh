@@ -66,7 +66,7 @@ rm -rf /etc/default/google-chrome
 
 #Apt, update, upgrade and autoremove
 
-apt update && sudo apt upgrade -y
+apt update && apt --fix-broken install -y && apt upgrade -y
 apt apt autoremove -y
 
 #Install flatpaks from USB Drive
