@@ -22,9 +22,7 @@ sed -i -e s,http://be.archive.ubuntu.com/ubuntu/,http://archive.ubuntu.com/ubunt
 
 #Remove Canon Drivers
 
-dpkg -P cnrdrvcups-ufr2-us
 dpkg -P cnrdrvcups-ufr2-uk
-dpkg -P cnrdrvcups-lipslx
 
 #Remove snap store
 
@@ -40,6 +38,8 @@ rm -rf /etc/apt/sources.list.d/mozilla.list
 
 #Install New deb packages
 
+apt update
+
 #Warp Terminal
 
 dpkg -i ./warp-terminal_*_amd64.deb
@@ -50,7 +50,7 @@ dpkg -i ./code_*_amd64.deb
 
 #Balena Etcher
 
-sudo dpkg -i ./balena-etcher_*_amd64.deb
+dpkg -i ./balena-etcher_*_amd64.deb
 
 #Install dbus-x11
 
@@ -85,4 +85,6 @@ flatpak install -y app/us.zoom.Zoom/x86_64/stable
 flatpak update -y
 
 #Set Icon Arrangement and settings
+
+sudo -u odoo bash -c 'dconf load / < odoo-gnome-arrangement.txt'
 
