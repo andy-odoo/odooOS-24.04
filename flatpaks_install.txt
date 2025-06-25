@@ -41,7 +41,6 @@ org.gnome.Totem
 org.gnome.Weather
 org.gnome.clocks
 org.gnome.SimpleScan
-org.gnome.Characters
 org.gnome.design.Palette
 org.kde.okular
 org.inkscape.Inkscape
