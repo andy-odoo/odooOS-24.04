@@ -28,6 +28,8 @@ dpkg -P cnrdrvcups-ufr2-uk
 
 systemctl stop packagekit.service
 
+sleep 60
+
 #Remove snap store
 
 snap remove snap-store
