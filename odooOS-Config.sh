@@ -92,5 +92,6 @@ flatpak update -y
 
 #Set Icon Arrangement and settings
 
+export DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/10000/bus
 sudo -u odoo bash -c 'dconf load / < odoo-gnome-arrangement.txt'
 
