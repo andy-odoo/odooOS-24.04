@@ -24,6 +24,10 @@ sed -i -e s,http://be.archive.ubuntu.com/ubuntu/,http://us.archive.ubuntu.com/ub
 
 dpkg -P cnrdrvcups-ufr2-uk
 
+#Stop packagekitd
+
+systemctl stop packagekit.service
+
 #Remove snap store
 
 snap remove snap-store
