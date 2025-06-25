@@ -28,6 +28,10 @@ dpkg -P cnrdrvcups-ufr2-uk
 
 systemctl stop packagekit.service
 
+#Stop unattended-upgrades
+
+systemctl stop unattended-upgrades.service
+
 sleep 60
 
 #Remove snap store
