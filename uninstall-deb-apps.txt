@@ -2,6 +2,7 @@ anydesk
 gnome-calculator
 gnome-clocks
 gnome-mahjongg
+eog
 firefox*
 obs*
 dconf-editor
