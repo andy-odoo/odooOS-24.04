@@ -1,3 +1,4 @@
+odooos-converter
 anydesk
 gnome-calculator
 gnome-clocks
