@@ -98,6 +98,17 @@ flatpak update -y
 
 sudo -u odoo bash -c 'dconf load / < odoo-gnome-arrangement.txt'
 
+#Set Wallpapers
+
+rm -rf /opt/odoo-apps/media/wallpapers/*
+
+cp ./wallpapers/* /opt/odoo-apps/media/wallpapers/ 
+
+sudo -u odoo bash -c 'dconf write /org/gnome/desktop/background/picture-uri "'file:///opt/odoo-apps/media/wallpapers/odoo-wallpaper-tips-light.png'"'
+
+sudo -u bash -c 'dconf write /org/gnome/desktop/background/picture-uri-dark "'file:///opt/odoo-apps/media/wallpapers/odoo-wallpaper-tips-dark.png'"'
+
+
 sleep 30
 
 reboot
