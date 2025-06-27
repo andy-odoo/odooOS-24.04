@@ -106,7 +106,8 @@ cp ./wallpapers/* /opt/odoo/wallpapers/
 
 sudo -u odoo bash -c 'dconf write /org/gnome/desktop/background/picture-uri "'file:///opt/odoo/wallpapers/odoo-wallpaper-tips-light.png'"'
 
-sudo -u bash -c 'dconf write /org/gnome/desktop/background/picture-uri-dark "'file:///opt/odoo/wallpapers/odoo-wallpaper-tips-dark.png'"'
+sudo -u odoo bash -c 'dconf write /org/gnome/desktop/background/picture-uri-dark "'file:///opt/odoo/wallpapers/odoo-wallpaper-tips-dark.png'"'
+
 
 
 sleep 30
