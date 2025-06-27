@@ -74,6 +74,10 @@ rm -rf /home/odoo/.config/google-chrome
 
 rm -rf /etc/default/google-chrome
 
+#Remove gnome keyrings for user odoo
+
+rm -rf /home/odoo/.local/share/keyrings/*
+
 #Apt, update, upgrade and autoremove
 
 apt update && apt --fix-broken install -y && apt upgrade -y
