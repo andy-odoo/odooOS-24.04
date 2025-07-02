@@ -109,7 +109,7 @@ mkdir -p /opt/odoo/wallpapers/
 cp ./wallpapers/* /opt/odoo/wallpapers/
 
 wallpaper_light="'file:///opt/odoo/wallpapers/odoo-wallpaper-tips-light.png'"
-wallpaper_dark="'file:///opt/odoo/wallpapers/odoo-wallpaper-tips-light.png'"
+wallpaper_dark="'file:///opt/odoo/wallpapers/odoo-wallpaper-tips-dark.png'"
 
 sudo -u odoo bash -c "dconf write /org/gnome/desktop/background/picture-uri "'"'"$wallpaper_light"'"'""
 
