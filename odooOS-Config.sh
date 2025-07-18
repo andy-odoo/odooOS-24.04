@@ -74,10 +74,6 @@ rm -rf /home/odoo/.config/google-chrome
 
 rm -rf /etc/default/google-chrome
 
-#Remove gnome keyrings for user odoo
-
-rm -rf /home/odoo/.local/share/keyrings/*
-
 #Apt, update, upgrade and autoremove
 
 apt update && apt --fix-broken install -y && apt upgrade -y
@@ -115,6 +111,9 @@ sudo -u odoo bash -c "dconf write /org/gnome/desktop/background/picture-uri "'"'
 
 sudo -u odoo bash -c "dconf write /org/gnome/desktop/background/picture-uri-dark "'"'"$wallpaper_dark"'"'""
 
+#Remove gnome keyrings for user odoo
+
+rm -rf /home/odoo/.local/share/keyrings/*
 
 sleep 30
 
