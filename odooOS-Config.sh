@@ -111,6 +111,18 @@ sudo -u odoo bash -c "dconf write /org/gnome/desktop/background/picture-uri "'"'
 
 sudo -u odoo bash -c "dconf write /org/gnome/desktop/background/picture-uri-dark "'"'"$wallpaper_dark"'"'""
 
+#Install Touchegg PPA
+
+add-apt-repository -y ppa:touchegg/stable
+
+apt install -y touchegg
+
+#Install touche
+
+flatpak install -y com.github.joseexposito.touche
+
+sudo -u odoo bash -c 'gnome-extensions install ./x11gesturesjoseexposito.github.io.v25.shell-extension.zip'
+
 #Remove gnome keyrings for user odoo
 
 rm -rf /home/odoo/.local/share/keyrings/*
