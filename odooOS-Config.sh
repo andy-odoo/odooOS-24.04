@@ -94,6 +94,24 @@ flatpak install -y app/us.zoom.Zoom/x86_64/stable
 
 flatpak update -y
 
+#Install Touchegg PPA
+
+add-apt-repository -y ppa:touchegg/stable
+
+apt install -y touchegg
+
+#Install touche
+
+flatpak install -y com.github.joseexposito.touche
+
+#Install x11-gestures
+
+sudo -u odoo bash -c 'gnome-extensions install ./x11gesturesjoseexposito.github.io.v25.shell-extension.zip'
+
+#Enable x11-gestures
+
+sudo -u odoo bash -c 'gnome-extensions enable x11gestures@joseexposito.github.io'
+
 #Set Icon Arrangement and settings
 
 sudo -u odoo bash -c 'dconf load / < odoo-gnome-arrangement.txt'
@@ -110,18 +128,6 @@ wallpaper_dark="'file:///opt/odoo/wallpapers/odoo-wallpaper-tips-dark.png'"
 sudo -u odoo bash -c "dconf write /org/gnome/desktop/background/picture-uri "'"'"$wallpaper_light"'"'""
 
 sudo -u odoo bash -c "dconf write /org/gnome/desktop/background/picture-uri-dark "'"'"$wallpaper_dark"'"'""
-
-#Install Touchegg PPA
-
-add-apt-repository -y ppa:touchegg/stable
-
-apt install -y touchegg
-
-#Install touche
-
-flatpak install -y com.github.joseexposito.touche
-
-sudo -u odoo bash -c 'gnome-extensions install ./x11gesturesjoseexposito.github.io.v25.shell-extension.zip'
 
 #Remove gnome keyrings for user odoo
 
