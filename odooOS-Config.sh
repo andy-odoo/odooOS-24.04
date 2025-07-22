@@ -108,6 +108,8 @@ flatpak install -y com.github.joseexposito.touche
 
 sudo -u odoo bash -c 'gnome-extensions install ./x11gesturesjoseexposito.github.io.v25.shell-extension.zip'
 
+sleep 10
+
 #Enable x11-gestures
 
 sudo -u odoo bash -c 'gnome-extensions enable x11gestures@joseexposito.github.io'
