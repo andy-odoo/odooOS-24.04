@@ -44,6 +44,8 @@ for f in `cat ./uninstall-deb-apps.txt` ; do apt remove -y $f ; done
 
 #Remove old or invalid deb repos
 
+rm -rf /etc/apt/sources.list.d/*.save
+rm -rf /etc/apt/sources.list.d/archive_uri-http_us_archive_ubuntu_com_ubuntu-noble.list
 rm -rf /etc/apt/sources.list.d/mozilla.list
 
 #Install New deb packages
