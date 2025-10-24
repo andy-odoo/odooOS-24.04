@@ -6,7 +6,6 @@ com.brave.Browser
 com.calibre_ebook.calibre
 com.github.jeromerobert.pdfarranger
 com.github.tchx84.Flatseal
-com.jetbrains.PyCharm-Community
 com.mattjakeman.ExtensionManager
 com.obsproject.Studio
 com.rustdesk.RustDesk

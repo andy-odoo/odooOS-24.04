@@ -16,3 +16,4 @@ rustdesk
 aisleriot
 geany
 geary
+xmind-vana
