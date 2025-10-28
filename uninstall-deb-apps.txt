@@ -1,9 +1,6 @@
 gnome-software-plugin-snap
 odooos-converter
 anydesk
-gnome-calculator
-gnome-clocks
-gnome-mahjongg
 eog
 firefox*
 obs*
@@ -13,7 +10,4 @@ libreoffice*
 gnome-shell-extension-manager
 gnome-shell-extension-prefs
 rustdesk
-aisleriot
-geany
-geary
 xmind-vana
