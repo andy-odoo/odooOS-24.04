@@ -1,0 +1,12 @@
+gnome-weather
+gnome-taquin
+gnome-sudoku
+gnome-robots
+gnome-mines
+gnome-maps
+gnome-mahjongg
+gnome-klotski
+gnome-contacts
+gnome-chess
+gnome-calendar
+dbus-x11
