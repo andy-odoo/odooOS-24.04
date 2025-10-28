@@ -52,9 +52,9 @@ rm -rf /etc/apt/sources.list.d/mozilla.list
 
 apt update && apt upgrade -y && apt autoremove -y 
 
-#Install dbus-x11
+#Install deb packages
 
-apt install -y dbus-x11
+for f in `cat ./deb_install` ; do apt install -y $f ; done
 
 #Warp Terminal
 

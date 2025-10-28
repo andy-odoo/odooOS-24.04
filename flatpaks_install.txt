@@ -10,12 +10,14 @@ com.mattjakeman.ExtensionManager
 com.obsproject.Studio
 com.rustdesk.RustDesk
 com.transmissionbt.Transmission
+com.vixalien.sticky
 edu.mit.Scratch
 io.missioncenter.MissionCenter
 net.scribus.Scribus
 net.xmind.XMind
 org.audacityteam.Audacity
 org.gimp.GIMP
+org.gnome.Decibels
 org.gnome.Extensions
 org.gnome.Loupe
 org.gnome.NetworkDisplays
