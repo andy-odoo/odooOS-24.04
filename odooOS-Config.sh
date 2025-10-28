@@ -54,7 +54,7 @@ apt update && apt upgrade -y && apt autoremove -y
 
 #Install deb packages
 
-for f in `cat ./deb_install` ; do apt install -y $f ; done
+for f in `cat ./deb_install.txt` ; do apt install -y $f ; done
 
 #Warp Terminal
 

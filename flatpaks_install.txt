@@ -33,10 +33,12 @@ org.kde.okular
 org.inkscape.Inkscape
 org.libreoffice.LibreOffice
 org.mozilla.firefox
+org.mozilla.Thunderbird
 org.openshot.OpenShot
 org.pgadmin.pgadmin4
 org.remmina.Remmina
 org.shotcut.Shotcut
+org.kde.kdenlive
 org.sqlitebrowser.sqlitebrowser
 org.strawberrymusicplayer.strawberry
 org.telegram.desktop
