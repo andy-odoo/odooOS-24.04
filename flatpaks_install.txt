@@ -41,6 +41,7 @@ org.shotcut.Shotcut
 org.kde.kdenlive
 org.sqlitebrowser.sqlitebrowser
 org.strawberrymusicplayer.strawberry
+de.haeckerfelix.Shortwave
 org.telegram.desktop
 org.videolan.VLC
 uk.org.greenend.chiark.sgtatham.putty
