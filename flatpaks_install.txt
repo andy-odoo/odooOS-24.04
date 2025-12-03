@@ -32,6 +32,7 @@ org.gnome.design.Palette
 org.kde.okular
 org.inkscape.Inkscape
 org.libreoffice.LibreOffice
+md.obsidian.Obsidian
 org.mozilla.firefox
 org.mozilla.Thunderbird
 org.openshot.OpenShot
