@@ -1,10 +1,14 @@
 [apps/update-manager]
 first-run=false
-launch-count=6
-launch-time=int64 1750800033
+launch-count=8
+launch-time=int64 1769637847
 show-details=true
 window-height=400
 window-width=704
+
+[com/github/bilelmoussaoui/Authenticator]
+is-maximized=false
+window-position=[785, 281]
 
 [com/mattjakeman/ExtensionManager]
 height=762
@@ -12,7 +16,7 @@ last-used-version='0.5.0'
 width=927
 
 [com/ubuntu/update-notifier]
-release-check-time=uint32 1761690964
+release-check-time=uint32 1769635658
 
 [desktop/ibus/general]
 preload-engines=['xbe:us::eng']
@@ -28,12 +32,12 @@ active-chart='treemap'
 is-maximized=true
 
 [org/gnome/control-center]
-last-panel='background'
+last-panel='wifi'
 window-state=(980, 640, false)
 
 [org/gnome/deja-dup]
 backend='google'
-prompt-check='2025-10-28T22:39:04.864317Z'
+prompt-check='2026-01-28T22:08:01.570344Z'
 
 [org/gnome/desktop/app-folders]
 folder-children=['Utilities', 'YaST', 'Pardus', 'edfd0215-8cac-4c64-b0bc-29d76bf26b7e', '8b635fab-22f7-4457-9846-3c6abc8c7998', '5d44aacd-b163-48e7-83a2-276ee3353c2c', '88032d08-d2ac-498e-9cb9-0410b56ba00c', '24a95fbc-1e10-4041-b1fe-2c03acb41194', '835fe221-1e4b-49cd-8d84-5aa4b8349ec4']
@@ -55,7 +59,7 @@ apps=['sol.desktop', 'org.gnome.Mahjongg.desktop', 'org.gnome.Sudoku.desktop', '
 name='Games'
 
 [org/gnome/desktop/app-folders/folders/8b635fab-22f7-4457-9846-3c6abc8c7998]
-apps=['org.libreoffice.LibreOffice.writer.desktop', 'org.libreoffice.LibreOffice.calc.desktop', 'org.libreoffice.LibreOffice.impress.desktop', 'org.libreoffice.LibreOffice.draw.desktop', 'org.libreoffice.LibreOffice.math.desktop', 'org.libreoffice.LibreOffice.base.desktop', 'org.libreoffice.LibreOffice.desktop', 'net.scribus.Scribus.desktop', 'net.cozic.joplin_desktop.desktop', 'net.xmind.XMind.desktop', 'xournal.desktop', 'com.github.jeromerobert.pdfarranger.desktop', 'org.kde.okular.desktop', 'com.calibre_ebook.calibre.desktop', 'com.calibre_ebook.calibre.ebook-viewer.desktop', 'com.calibre_ebook.calibre.ebook-edit.desktop', 'com.calibre_ebook.calibre.lrfviewer.desktop']
+apps=['org.libreoffice.LibreOffice.writer.desktop', 'org.libreoffice.LibreOffice.calc.desktop', 'org.libreoffice.LibreOffice.impress.desktop', 'org.libreoffice.LibreOffice.draw.desktop', 'org.libreoffice.LibreOffice.math.desktop', 'org.libreoffice.LibreOffice.base.desktop', 'org.libreoffice.LibreOffice.desktop', 'net.scribus.Scribus.desktop', 'net.cozic.joplin_desktop.desktop', 'net.xmind.XMind.desktop', 'xournal.desktop', 'com.github.jeromerobert.pdfarranger.desktop', 'org.kde.okular.desktop', 'md.obsidian.Obsidian.desktop', 'com.calibre_ebook.calibre.desktop', 'com.calibre_ebook.calibre.ebook-viewer.desktop', 'com.calibre_ebook.calibre.ebook-edit.desktop', 'com.calibre_ebook.calibre.lrfviewer.desktop']
 name='Office'
 
 [org/gnome/desktop/app-folders/folders/Pardus]
@@ -157,13 +161,14 @@ command='script --command "flameshot gui" /dev/null'
 name='flameshot'
 
 [org/gnome/shell]
-app-picker-layout=[{'Utilities': <{'position': <0>}>, '8b635fab-22f7-4457-9846-3c6abc8c7998': <{'position': <1>}>, 'edfd0215-8cac-4c64-b0bc-29d76bf26b7e': <{'position': <2>}>, '24a95fbc-1e10-4041-b1fe-2c03acb41194': <{'position': <3>}>, '835fe221-1e4b-49cd-8d84-5aa4b8349ec4': <{'position': <4>}>, '5d44aacd-b163-48e7-83a2-276ee3353c2c': <{'position': <5>}>, '88032d08-d2ac-498e-9cb9-0410b56ba00c': <{'position': <6>}>, 'org.gnome.Contacts.desktop': <{'position': <7>}>, 'org.gnome.Calendar.desktop': <{'position': <8>}>, 'org.gnome.Weather.desktop': <{'position': <9>}>, 'org.gnome.clocks.desktop': <{'position': <10>}>, 'org.gnome.Maps.desktop': <{'position': <11>}>, 'org.gnome.Calculator.desktop': <{'position': <12>}>, 'org.gnome.Totem.desktop': <{'position': <13>}>, 'org.gnome.Showtime.desktop': <{'position': <14>}>, 'org.gnome.Decibels.desktop': <{'position': <15>}>, 'org.gnome.SoundRecorder.desktop': <{'position': <16>}>, 'org.gnome.Snapshot.desktop': <{'position': <17>}>, 'org.gnome.Papers.desktop': <{'position': <18>}>, 'org.gnome.Shotwell.desktop': <{'position': <19>}>, 'org.gnome.TextEditor.desktop': <{'position': <20>}>, 'org.gnome.SimpleScan.desktop': <{'position': <21>}>, 'org.gnome.design.Palette.desktop': <{'position': <22>}>, 'app.drey.Dialect.desktop': <{'position': <23>}>}, {'gnome-language-selector.desktop': <{'position': <0>}>, 'org.gnome.NetworkDisplays.desktop': <{'position': <1>}>, 'org.gnome.Meld.desktop': <{'position': <2>}>, 'gnome-session-properties.desktop': <{'position': <3>}>, 'org.gnome.Extensions.desktop': <{'position': <4>}>, 'com.mattjakeman.ExtensionManager.desktop': <{'position': <5>}>, 'com.github.tchx84.Flatseal.desktop': <{'position': <6>}>, 'ca.desrt.dconf-editor.desktop': <{'position': <7>}>, 'io.missioncenter.MissionCenter.desktop': <{'position': <8>}>, 'org.gnome.SystemMonitor.desktop': <{'position': <9>}>, 'org.gnome.PowerStats.desktop': <{'position': <10>}>, 'software-properties-drivers.desktop': <{'position': <11>}>, 'firmware-updater_firmware-updater.desktop': <{'position': <12>}>, 'software-properties-gtk.desktop': <{'position': <13>}>, 'org.freedesktop.MalcontentControl.desktop': <{'position': <14>}>, 'gdebi.desktop': <{'position': <15>}>, 'autokey-gtk.desktop': <{'position': <16>}>, 'btop.desktop': <{'position': <17>}>, 'htop.desktop': <{'position': <18>}>, 'eid-viewer.desktop': <{'position': <19>}>, 'display-im6.q16.desktop': <{'position': <20>}>, 'mc.desktop': <{'position': <21>}>, 'mcedit.desktop': <{'position': <22>}>, 'setup-mozc.desktop': <{'position': <23>}>}, {'com.anydesk.Anydesk.desktop': <{'position': <0>}>, 'com.rustdesk.RustDesk.desktop': <{'position': <1>}>, 'com.github.vkohaupt.vokoscreenNG.desktop': <{'position': <2>}>, 'com.bitwarden.desktop.desktop': <{'position': <3>}>, 'dev.warp.Warp.desktop': <{'position': <4>}>, 'uk.org.greenend.chiark.sgtatham.putty.desktop': <{'position': <5>}>, 'org.remmina.Remmina.desktop': <{'position': <6>}>, 'balena-etcher.desktop': <{'position': <7>}>, 'com.belmoussaoui.Decoder.desktop': <{'position': <8>}>, 'info.desktop': <{'position': <9>}>, 'yelp.desktop': <{'position': <10>}>}]
+app-picker-layout=[{'Utilities': <{'position': <0>}>, '8b635fab-22f7-4457-9846-3c6abc8c7998': <{'position': <1>}>, 'edfd0215-8cac-4c64-b0bc-29d76bf26b7e': <{'position': <2>}>, '24a95fbc-1e10-4041-b1fe-2c03acb41194': <{'position': <3>}>, '835fe221-1e4b-49cd-8d84-5aa4b8349ec4': <{'position': <4>}>, '5d44aacd-b163-48e7-83a2-276ee3353c2c': <{'position': <5>}>, '88032d08-d2ac-498e-9cb9-0410b56ba00c': <{'position': <6>}>, 'org.gnome.Contacts.desktop': <{'position': <7>}>, 'org.gnome.Calendar.desktop': <{'position': <8>}>, 'org.gnome.Weather.desktop': <{'position': <9>}>, 'org.gnome.clocks.desktop': <{'position': <10>}>, 'org.gnome.Maps.desktop': <{'position': <11>}>, 'org.gnome.Calculator.desktop': <{'position': <12>}>, 'org.gnome.Totem.desktop': <{'position': <13>}>, 'org.gnome.Showtime.desktop': <{'position': <14>}>, 'org.gnome.Decibels.desktop': <{'position': <15>}>, 'org.gnome.SoundRecorder.desktop': <{'position': <16>}>, 'org.gnome.Snapshot.desktop': <{'position': <17>}>, 'org.gnome.Papers.desktop': <{'position': <18>}>, 'org.gnome.Shotwell.desktop': <{'position': <19>}>, 'org.gnome.TextEditor.desktop': <{'position': <20>}>, 'org.gnome.SimpleScan.desktop': <{'position': <21>}>, 'org.gnome.design.Palette.desktop': <{'position': <22>}>, 'app.drey.Dialect.desktop': <{'position': <23>}>}, {'gnome-language-selector.desktop': <{'position': <0>}>, 'org.gnome.NetworkDisplays.desktop': <{'position': <1>}>, 'org.gnome.Meld.desktop': <{'position': <2>}>, 'gnome-session-properties.desktop': <{'position': <3>}>, 'org.gnome.Extensions.desktop': <{'position': <4>}>, 'com.mattjakeman.ExtensionManager.desktop': <{'position': <5>}>, 'com.github.tchx84.Flatseal.desktop': <{'position': <6>}>, 'ca.desrt.dconf-editor.desktop': <{'position': <7>}>, 'io.missioncenter.MissionCenter.desktop': <{'position': <8>}>, 'org.gnome.SystemMonitor.desktop': <{'position': <9>}>, 'org.gnome.PowerStats.desktop': <{'position': <10>}>, 'software-properties-drivers.desktop': <{'position': <11>}>, 'firmware-updater_firmware-updater.desktop': <{'position': <12>}>, 'software-properties-gtk.desktop': <{'position': <13>}>, 'org.freedesktop.MalcontentControl.desktop': <{'position': <14>}>, 'gdebi.desktop': <{'position': <15>}>, 'autokey-gtk.desktop': <{'position': <16>}>, 'htop.desktop': <{'position': <17>}>, 'btop.desktop': <{'position': <18>}>, 'eid-viewer.desktop': <{'position': <19>}>, 'mc.desktop': <{'position': <20>}>, 'mcedit.desktop': <{'position': <21>}>, 'display-im6.q16.desktop': <{'position': <22>}>, 'setup-mozc.desktop': <{'position': <23>}>}, {'com.anydesk.Anydesk.desktop': <{'position': <0>}>, 'com.rustdesk.RustDesk.desktop': <{'position': <1>}>, 'com.github.vkohaupt.vokoscreenNG.desktop': <{'position': <2>}>, 'com.bitwarden.desktop.desktop': <{'position': <3>}>, 'dev.warp.Warp.desktop': <{'position': <4>}>, 'uk.org.greenend.chiark.sgtatham.putty.desktop': <{'position': <5>}>, 'org.remmina.Remmina.desktop': <{'position': <6>}>, 'balena-etcher.desktop': <{'position': <7>}>, 'com.belmoussaoui.Decoder.desktop': <{'position': <8>}>, 'info.desktop': <{'position': <9>}>, 'yelp.desktop': <{'position': <10>}>}]
 disabled-extensions=['tiling-assistant@ubuntu.com']
 enabled-extensions=['caffeine@patapon.info', 'user-theme@gnome-shell-extensions.gcampax.github.com', 'clipboard-indicator@tudmotu.com', 'x11gestures@joseexposito.github.io']
 favorite-apps=['org.gnome.Terminal.desktop', 'org.gnome.Nautilus.desktop', 'google-chrome.desktop', 'com.discordapp.Discord.desktop', 'com.ktechpit.whatsie.desktop', 'org.onlyoffice.desktopeditors.desktop', 'com.vixalien.sticky.desktop', 'org.gnome.Geary.desktop', 'org.flameshot.Flameshot.desktop', 'com.spotify.Client.desktop', 'de.haeckerfelix.Shortwave.desktop', 'org.gnome.Software.desktop', 'update-manager.desktop', 'org.gnome.Settings.desktop']
 welcome-dialog-last-shown-version='46.0'
 
 [org/gnome/shell/extensions/caffeine]
+cli-toggle=false
 indicator-position-max=1
 
 [org/gnome/shell/extensions/dash-to-dock]
@@ -184,7 +189,7 @@ active-window-hint-color='rgb(211,70,21)'
 last-version-installed=46
 
 [org/gnome/shell/keybindings]
-show-screenshot-ui=@as []
+show-screenshot-ui=['Launch2']
 
 [org/gnome/shell/weather]
 automatic-location=true
@@ -194,11 +199,11 @@ locations=[<(uint32 2, <('San Francisco', 'KOAK', true, [(0.65832848982162007, -
 locations=[<(uint32 2, <('San Francisco', 'KOAK', true, [(0.65832848982162007, -2.133408063190589)], [(0.659296885757089, -2.1366218601153339)])>)>, <(uint32 2, <('Brussels', 'EBBR', true, [(0.88837258926511375, 0.079121586939312094)], [(0.88720903061268674, 0.07563092843532343)])>)>, <(uint32 2, <('Mexico City', 'MMMX', true, [(0.33917564548646723, -1.7296212887263802)], [(0.33919020153242879, -1.7302951778038682)])>)>]
 
 [org/gnome/software]
-check-timestamp=int64 1762564971
+check-timestamp=int64 1769635663
 flatpak-purge-timestamp=int64 1743175378
-install-timestamp=int64 1762564951
+install-timestamp=int64 1769635600
 security-timestamp=int64 1749116409855895
-update-notification-timestamp=int64 1762564961
+update-notification-timestamp=int64 1769637672
 
 [org/gtk/gtk4/settings/file-chooser]
 date-format='regular'
