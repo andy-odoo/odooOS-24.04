@@ -10,3 +10,10 @@ gnome-contacts
 gnome-chess
 gnome-calendar
 dbus-x11
+thunderbird
+audacity
+transmission-gtk
+vlc
+simple-scan
+warp-terminal
+code
