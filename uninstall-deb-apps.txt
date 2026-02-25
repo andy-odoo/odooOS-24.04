@@ -2,10 +2,8 @@ gnome-software-plugin-snap
 odooos-converter
 anydesk
 eog
-firefox*
 obs*
 dconf-editor
-vlc*
 libreoffice*
 gnome-shell-extension-manager
 gnome-shell-extension-prefs
