@@ -1,0 +1,11 @@
+gnome-software-plugin-snap
+odooos-converter
+anydesk
+eog
+obs*
+dconf-editor
+libreoffice*
+gnome-shell-extension-manager
+gnome-shell-extension-prefs
+rustdesk
+xmind-vana
