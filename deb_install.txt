@@ -10,7 +10,6 @@ gnome-contacts
 gnome-chess
 gnome-calendar
 dbus-x11
-thunderbird
 brave-browser
 audacity
 transmission-gtk

@@ -40,4 +40,4 @@ de.haeckerfelix.Shortwave
 org.telegram.desktop
 uk.org.greenend.chiark.sgtatham.putty
 org.ferdium.Ferdium
-
+org.mozilla.Thunderbird

@@ -154,16 +154,15 @@ else
     echo "Warp Terminal repository configured."
 fi
 
-#Add Firefox and Thunderbird deb repositories (Mozilla official, not Snap)
-# Ubuntu 24.04 ships snap stubs for both — remove them and use Mozilla APT repo instead
+#Add Firefox repo (Mozilla official APT — not Snap)
+# packages.mozilla.org serves Firefox only
 
-# Remove snap stubs if present
-snap remove thunderbird 2>/dev/null || true
+# Remove Firefox snap stub if present
 snap remove firefox 2>/dev/null || true
 
-# Block Ubuntu's snap stub packages via apt pin
-cat > /etc/apt/preferences.d/no-snap-firefox-thunderbird << 'PINEOF'
-Package: firefox thunderbird
+# Block Ubuntu's Firefox snap stub via apt pin
+cat > /etc/apt/preferences.d/no-snap-firefox << 'PINEOF'
+Package: firefox
 Pin: release o=Ubuntu
 Pin-Priority: -1
 PINEOF
@@ -171,20 +170,23 @@ PINEOF
 install -d -m 0755 /etc/apt/keyrings
 wget -qO /tmp/mozilla-repo-signing-key.gpg https://packages.mozilla.org/apt/repo-signing-key.gpg
 if [ ! -s /tmp/mozilla-repo-signing-key.gpg ]; then
-    echo "ERROR: Failed to download Mozilla GPG key. Skipping Mozilla repo."
+    echo "ERROR: Failed to download Mozilla GPG key. Skipping Firefox repo."
 else
-    cp /tmp/mozilla-repo-signing-key.gpg /etc/apt/keyrings/packages.mozilla.org.asc
-    chmod 644 /etc/apt/keyrings/packages.mozilla.org.asc
+    gpg --dearmor < /tmp/mozilla-repo-signing-key.gpg > /etc/apt/keyrings/packages.mozilla.org.gpg
+    chmod 644 /etc/apt/keyrings/packages.mozilla.org.gpg
     rm -f /tmp/mozilla-repo-signing-key.gpg
-    echo "deb [signed-by=/etc/apt/keyrings/packages.mozilla.org.asc] https://packages.mozilla.org/apt mozilla main" \
+    echo "deb [signed-by=/etc/apt/keyrings/packages.mozilla.org.gpg] https://packages.mozilla.org/apt mozilla main" \
         > /etc/apt/sources.list.d/mozilla.list
     cat > /etc/apt/preferences.d/mozilla << 'MOZEOF'
 Package: *
 Pin: origin packages.mozilla.org
 Pin-Priority: 1001
 MOZEOF
-    echo "Mozilla repository configured."
+    echo "Firefox (Mozilla APT) repository configured."
 fi
+
+# Remove Thunderbird snap stub if present (Thunderbird installed via Flatpak instead)
+snap remove thunderbird 2>/dev/null || true
 
 #Add Brave browser deb repository
 
@@ -205,11 +207,7 @@ fi
 
 #Install New deb packages
 
-apt update && apt upgrade -y && apt autoremove -y 
-
-#Install deb packages
-
-for f in `cat ./deb_install.txt` ; do apt install -y $f ; done
+apt update && apt upgrade -y && apt autoremove -y
 
 #Balena Etcher (download latest release directly from GitHub)
 
@@ -237,6 +235,10 @@ rm -rf /etc/default/google-chrome
 
 apt update && apt --fix-broken install -y && apt upgrade -y
 apt autoremove -y
+
+#Install deb packages
+
+for f in `cat ./deb_install.txt` ; do apt install -y $f ; done
 
 #Install flatpaks from USB Drive
 
