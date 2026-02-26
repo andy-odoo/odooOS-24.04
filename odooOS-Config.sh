@@ -130,14 +130,8 @@ else
     gpg --dearmor < /tmp/microsoft.asc > /usr/share/keyrings/microsoft.gpg
     chmod 644 /usr/share/keyrings/microsoft.gpg
     rm -f /tmp/microsoft.asc
-    cat > /etc/apt/sources.list.d/vscode.sources << 'VSEOF'
-Types: deb
-URIs: https://packages.microsoft.com/repos/code
-Suites: stable
-Components: main
-Architectures: amd64 arm64 armhf
-Signed-By: /usr/share/keyrings/microsoft.gpg
-VSEOF
+    # Write sources file without indentation — DEB822 format does not allow leading whitespace
+    printf 'Types: deb\nURIs: https://packages.microsoft.com/repos/code\nSuites: stable\nComponents: main\nArchitectures: amd64 arm64 armhf\nSigned-By: /usr/share/keyrings/microsoft.gpg\n'         > /etc/apt/sources.list.d/vscode.sources
     echo "VSCode repository configured."
 fi
 
@@ -305,7 +299,34 @@ picture-options='zoom'
 DCONFEOF
 
 dconf update
-echo "System wallpapers installed." 
+
+# Register wallpapers in GNOME background picker
+mkdir -p /usr/share/gnome-background-properties
+cat > /usr/share/gnome-background-properties/odoo-wallpapers.xml << 'XMLEOF'
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE wallpapers SYSTEM "gnome-wp-list.dtd">
+<wallpapers>
+  <wallpaper deleted="false">
+    <name>Odoo Tips</name>
+    <filename>/usr/share/backgrounds/odoo/odoo-wallpaper-tips-light.png</filename>
+    <filename-dark>/usr/share/backgrounds/odoo/odoo-wallpaper-tips-dark.png</filename-dark>
+    <options>zoom</options>
+    <shade_type>solid</shade_type>
+    <pcolor>#000000</pcolor>
+    <scolor>#000000</scolor>
+  </wallpaper>
+  <wallpaper deleted="false">
+    <name>Odoo Purple</name>
+    <filename>/usr/share/backgrounds/odoo/odoo-wallpaper-purple.png</filename>
+    <options>zoom</options>
+    <shade_type>solid</shade_type>
+    <pcolor>#000000</pcolor>
+    <scolor>#000000</scolor>
+  </wallpaper>
+</wallpapers>
+XMLEOF
+chmod 644 /usr/share/gnome-background-properties/odoo-wallpapers.xml
+echo "System wallpapers installed."  
 
 #Enable fingerprint authentication
 
