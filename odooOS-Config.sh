@@ -123,24 +123,36 @@ rm -rf /etc/apt/sources.list.d/archive_uri-http_us_archive_ubuntu_com_ubuntu-nob
 
 #Add VSCode apt repository
 
-wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
-install -D -o root -g root -m 644 microsoft.gpg /usr/share/keyrings/microsoft.gpg
-rm -f microsoft.gpg
-cat > /etc/apt/sources.list.d/vscode.sources <<EOF
+wget -qO /tmp/microsoft.asc https://packages.microsoft.com/keys/microsoft.asc
+if [ ! -s /tmp/microsoft.asc ]; then
+    echo "ERROR: Failed to download Microsoft GPG key. Skipping VSCode repo."
+else
+    gpg --dearmor < /tmp/microsoft.asc > /usr/share/keyrings/microsoft.gpg
+    chmod 644 /usr/share/keyrings/microsoft.gpg
+    rm -f /tmp/microsoft.asc
+    cat > /etc/apt/sources.list.d/vscode.sources << 'VSEOF'
 Types: deb
 URIs: https://packages.microsoft.com/repos/code
 Suites: stable
 Components: main
 Architectures: amd64 arm64 armhf
 Signed-By: /usr/share/keyrings/microsoft.gpg
-EOF
+VSEOF
+    echo "VSCode repository configured."
+fi
 
 #Add Warp Terminal apt repository
 
-wget -qO- https://releases.warp.dev/linux/keys/warp.asc | gpg --dearmor > warpdotdev.gpg
-install -D -o root -g root -m 644 warpdotdev.gpg /etc/apt/keyrings/warpdotdev.gpg
-sh -c 'echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/warpdotdev.gpg] https://releases.warp.dev/linux/deb stable main" > /etc/apt/sources.list.d/warpdotdev.list'
-rm -f warpdotdev.gpg
+wget -qO /tmp/warp.asc https://releases.warp.dev/linux/keys/warp.asc
+if [ ! -s /tmp/warp.asc ]; then
+    echo "ERROR: Failed to download Warp GPG key. Skipping Warp repo."
+else
+    gpg --dearmor < /tmp/warp.asc > /etc/apt/keyrings/warpdotdev.gpg
+    chmod 644 /etc/apt/keyrings/warpdotdev.gpg
+    rm -f /tmp/warp.asc
+    echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/warpdotdev.gpg] https://releases.warp.dev/linux/deb stable main"         > /etc/apt/sources.list.d/warpdotdev.list
+    echo "Warp Terminal repository configured."
+fi
 
 #Add Firefox and Thunderbird deb repositories (Mozilla official, not Snap)
 # Ubuntu 24.04 ships snap stubs for both — remove them and use Mozilla APT repo instead
@@ -157,21 +169,39 @@ Pin-Priority: -1
 PINEOF
 
 install -d -m 0755 /etc/apt/keyrings
-wget -q https://packages.mozilla.org/apt/repo-signing-key.gpg -O /etc/apt/keyrings/packages.mozilla.org.asc
-echo "deb [signed-by=/etc/apt/keyrings/packages.mozilla.org.asc] https://packages.mozilla.org/apt mozilla main" \
-    > /etc/apt/sources.list.d/mozilla.list
-echo '
+wget -qO /tmp/mozilla-repo-signing-key.gpg https://packages.mozilla.org/apt/repo-signing-key.gpg
+if [ ! -s /tmp/mozilla-repo-signing-key.gpg ]; then
+    echo "ERROR: Failed to download Mozilla GPG key. Skipping Mozilla repo."
+else
+    cp /tmp/mozilla-repo-signing-key.gpg /etc/apt/keyrings/packages.mozilla.org.asc
+    chmod 644 /etc/apt/keyrings/packages.mozilla.org.asc
+    rm -f /tmp/mozilla-repo-signing-key.gpg
+    echo "deb [signed-by=/etc/apt/keyrings/packages.mozilla.org.asc] https://packages.mozilla.org/apt mozilla main" \
+        > /etc/apt/sources.list.d/mozilla.list
+    cat > /etc/apt/preferences.d/mozilla << 'MOZEOF'
 Package: *
 Pin: origin packages.mozilla.org
 Pin-Priority: 1001
-' > /etc/apt/preferences.d/mozilla
+MOZEOF
+    echo "Mozilla repository configured."
+fi
 
 #Add Brave browser deb repository
 
-curl -fsSLo /usr/share/keyrings/brave-browser-archive-keyring.gpg \
-    https://brave-browser-apt-release.s3.brave.com/brave-browser-archive-keyring.gpg
-curl -fsSLo /etc/apt/sources.list.d/brave-browser-release.sources \
-    https://brave-browser-apt-release.s3.brave.com/brave-browser.sources
+curl -fsSL -o /tmp/brave-keyring.gpg     https://brave-browser-apt-release.s3.brave.com/brave-browser-archive-keyring.gpg
+if [ ! -s /tmp/brave-keyring.gpg ]; then
+    echo "ERROR: Failed to download Brave GPG key. Skipping Brave repo."
+else
+    cp /tmp/brave-keyring.gpg /usr/share/keyrings/brave-browser-archive-keyring.gpg
+    chmod 644 /usr/share/keyrings/brave-browser-archive-keyring.gpg
+    rm -f /tmp/brave-keyring.gpg
+    curl -fsSL -o /etc/apt/sources.list.d/brave-browser-release.sources         https://brave-browser-apt-release.s3.brave.com/brave-browser.sources
+    if [ ! -s /etc/apt/sources.list.d/brave-browser-release.sources ]; then
+        echo "ERROR: Failed to download Brave sources file. Skipping Brave repo."
+    else
+        echo "Brave browser repository configured."
+    fi
+fi
 
 #Install New deb packages
 
