@@ -279,18 +279,33 @@ sudo -u odoo bash -c 'gnome-extensions enable x11gestures@joseexposito.github.io
 
 sudo -u odoo bash -c 'dconf load / < odoo-gnome-arrangement.txt'
 
-#Set Wallpapers
+#Set Wallpapers — system-wide default for all users
 
-mkdir -p /opt/odoo/wallpapers/
+mkdir -p /usr/share/backgrounds/odoo/
+cp ./wallpapers/* /usr/share/backgrounds/odoo/
+chmod 644 /usr/share/backgrounds/odoo/*
 
-cp ./wallpapers/* /opt/odoo/wallpapers/
+# Lock wallpaper via dconf system profile — applies to all users including future ones
+mkdir -p /etc/dconf/profile
+cat > /etc/dconf/profile/user << 'DCONFEOF'
+user-db:user
+system-db:local
+DCONFEOF
 
-wallpaper_light="'file:///opt/odoo/wallpapers/odoo-wallpaper-tips-light.png'"
-wallpaper_dark="'file:///opt/odoo/wallpapers/odoo-wallpaper-tips-dark.png'"
+mkdir -p /etc/dconf/db/local.d
+cat > /etc/dconf/db/local.d/01-odoo-wallpaper << 'DCONFEOF'
+[org/gnome/desktop/background]
+picture-uri='file:///usr/share/backgrounds/odoo/odoo-wallpaper-tips-light.png'
+picture-uri-dark='file:///usr/share/backgrounds/odoo/odoo-wallpaper-tips-dark.png'
+picture-options='zoom'
 
-sudo -u odoo bash -c "dconf write /org/gnome/desktop/background/picture-uri "'"'"$wallpaper_light"'"'""
+[org/gnome/desktop/screensaver]
+picture-uri='file:///usr/share/backgrounds/odoo/odoo-wallpaper-purple.png'
+picture-options='zoom'
+DCONFEOF
 
-sudo -u odoo bash -c "dconf write /org/gnome/desktop/background/picture-uri-dark "'"'"$wallpaper_dark"'"'""
+dconf update
+echo "System wallpapers installed." 
 
 #Enable fingerprint authentication
 
