@@ -125,13 +125,12 @@ rm -rf /etc/apt/sources.list.d/archive_uri-http_us_archive_ubuntu_com_ubuntu-nob
 
 wget -qO /tmp/microsoft.asc https://packages.microsoft.com/keys/microsoft.asc
 if [ ! -s /tmp/microsoft.asc ]; then
-    echo "ERROR: Failed to download Microsoft GPG key. Skipping VSCode repo."
+    echo "ERROR: Failed to download VSCode GPG key. Skipping VSCode repo."
 else
-    gpg --dearmor < /tmp/microsoft.asc > /usr/share/keyrings/microsoft.gpg
-    chmod 644 /usr/share/keyrings/microsoft.gpg
+    gpg --dearmor < /tmp/microsoft.asc > /etc/apt/keyrings/vscode.gpg
+    chmod 644 /etc/apt/keyrings/vscode.gpg
     rm -f /tmp/microsoft.asc
-    # Write sources file without indentation — DEB822 format does not allow leading whitespace
-    printf 'Types: deb\nURIs: https://packages.microsoft.com/repos/code\nSuites: stable\nComponents: main\nArchitectures: amd64 arm64 armhf\nSigned-By: /usr/share/keyrings/microsoft.gpg\n'         > /etc/apt/sources.list.d/vscode.sources
+    echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/vscode.gpg] https://packages.microsoft.com/repos/vscode stable main"         > /etc/apt/sources.list.d/vscode.sources
     echo "VSCode repository configured."
 fi
 
@@ -144,7 +143,7 @@ else
     gpg --dearmor < /tmp/warp.asc > /etc/apt/keyrings/warpdotdev.gpg
     chmod 644 /etc/apt/keyrings/warpdotdev.gpg
     rm -f /tmp/warp.asc
-    echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/warpdotdev.gpg] https://releases.warp.dev/linux/deb stable main"         > /etc/apt/sources.list.d/warpdotdev.list
+    echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/warpdotdev.gpg] https://releases.warp.dev/linux/deb stable main"         > /etc/apt/sources.list.d/warpdotdev.sources
     echo "Warp Terminal repository configured."
 fi
 
@@ -170,7 +169,7 @@ else
     chmod 644 /etc/apt/keyrings/packages.mozilla.org.gpg
     rm -f /tmp/mozilla-repo-signing-key.gpg
     echo "deb [signed-by=/etc/apt/keyrings/packages.mozilla.org.gpg] https://packages.mozilla.org/apt mozilla main" \
-        > /etc/apt/sources.list.d/mozilla.list
+        > /etc/apt/sources.list.d/mozilla.sources
     cat > /etc/apt/preferences.d/mozilla << 'MOZEOF'
 Package: *
 Pin: origin packages.mozilla.org
@@ -188,8 +187,8 @@ curl -fsSL -o /tmp/brave-keyring.gpg     https://brave-browser-apt-release.s3.br
 if [ ! -s /tmp/brave-keyring.gpg ]; then
     echo "ERROR: Failed to download Brave GPG key. Skipping Brave repo."
 else
-    cp /tmp/brave-keyring.gpg /usr/share/keyrings/brave-browser-archive-keyring.gpg
-    chmod 644 /usr/share/keyrings/brave-browser-archive-keyring.gpg
+    cp /tmp/brave-keyring.gpg /etc/apt/keyrings/brave-browser-archive-keyring.gpg
+    chmod 644 /etc/apt/keyrings/brave-browser-archive-keyring.gpg
     rm -f /tmp/brave-keyring.gpg
     curl -fsSL -o /etc/apt/sources.list.d/brave-browser-release.sources         https://brave-browser-apt-release.s3.brave.com/brave-browser.sources
     if [ ! -s /etc/apt/sources.list.d/brave-browser-release.sources ]; then
