@@ -125,12 +125,20 @@ rm -rf /etc/apt/sources.list.d/archive_uri-http_us_archive_ubuntu_com_ubuntu-nob
 
 wget -qO /tmp/microsoft.asc https://packages.microsoft.com/keys/microsoft.asc
 if [ ! -s /tmp/microsoft.asc ]; then
-    echo "ERROR: Failed to download VSCode GPG key. Skipping VSCode repo."
+    echo "ERROR: Failed to download Microsoft GPG key. Skipping VSCode repo."
 else
-    gpg --dearmor < /tmp/microsoft.asc > /etc/apt/keyrings/vscode.gpg
-    chmod 644 /etc/apt/keyrings/vscode.gpg
+    gpg --dearmor < /tmp/microsoft.asc > /etc/apt/keyrings/microsoft.gpg
+    chmod 644 /etc/apt/keyrings/microsoft.gpg
     rm -f /tmp/microsoft.asc
-    echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/vscode.gpg] https://packages.microsoft.com/repos/vscode stable main"         > /etc/apt/sources.list.d/vscode.sources
+    # Write sources file using tee — avoids heredoc indentation and printf escape issues
+    tee /etc/apt/sources.list.d/vscode.sources > /dev/null << 'VSEOF'
+Types: deb
+URIs: https://packages.microsoft.com/repos/code
+Suites: stable
+Components: main
+Architectures: amd64 arm64 armhf
+Signed-By: /etc/apt/keyrings/microsoft.gpg
+VSEOF
     echo "VSCode repository configured."
 fi
 
@@ -143,7 +151,14 @@ else
     gpg --dearmor < /tmp/warp.asc > /etc/apt/keyrings/warpdotdev.gpg
     chmod 644 /etc/apt/keyrings/warpdotdev.gpg
     rm -f /tmp/warp.asc
-    echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/warpdotdev.gpg] https://releases.warp.dev/linux/deb stable main"         > /etc/apt/sources.list.d/warpdotdev.sources
+    tee /etc/apt/sources.list.d/warpdotdev.sources > /dev/null << 'WARPEOF'
+Types: deb
+URIs: https://releases.warp.dev/linux/deb
+Suites: stable
+Components: main
+Architectures: amd64
+Signed-By: /etc/apt/keyrings/warpdotdev.gpg
+WARPEOF
     echo "Warp Terminal repository configured."
 fi
 
@@ -168,8 +183,13 @@ else
     gpg --dearmor < /tmp/mozilla-repo-signing-key.gpg > /etc/apt/keyrings/packages.mozilla.org.gpg
     chmod 644 /etc/apt/keyrings/packages.mozilla.org.gpg
     rm -f /tmp/mozilla-repo-signing-key.gpg
-    echo "deb [signed-by=/etc/apt/keyrings/packages.mozilla.org.gpg] https://packages.mozilla.org/apt mozilla main" \
-        > /etc/apt/sources.list.d/mozilla.sources
+    tee /etc/apt/sources.list.d/mozilla.sources > /dev/null << 'MOZEOF'
+Types: deb
+URIs: https://packages.mozilla.org/apt
+Suites: mozilla
+Components: main
+Signed-By: /etc/apt/keyrings/packages.mozilla.org.gpg
+MOZEOF
     cat > /etc/apt/preferences.d/mozilla << 'MOZEOF'
 Package: *
 Pin: origin packages.mozilla.org
@@ -194,6 +214,9 @@ else
     if [ ! -s /etc/apt/sources.list.d/brave-browser-release.sources ]; then
         echo "ERROR: Failed to download Brave sources file. Skipping Brave repo."
     else
+        # Fix Signed-By path in case Brave sources file points to /usr/share/keyrings
+        sed -i 's|/usr/share/keyrings/brave-browser-archive-keyring.gpg|/etc/apt/keyrings/brave-browser-archive-keyring.gpg|g' \
+            /etc/apt/sources.list.d/brave-browser-release.sources
         echo "Brave browser repository configured."
     fi
 fi
