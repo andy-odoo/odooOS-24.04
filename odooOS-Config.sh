@@ -45,9 +45,6 @@ WIFI_SSID="Odoo-SF"
 TIMEOUT=30
 
 echo "Checking network connectivity..."
-echo "Enter WiFi password for $WIFI_SSID:"
-read -rs WIFI_PASS
-echo
 
 # Check if any ethernet interface already has a connection
 ETH_UP=0
@@ -60,6 +57,9 @@ for iface in $(ls /sys/class/net/ | grep -E '^e'); do
 done
 
 if [ "$ETH_UP" -eq 0 ]; then
+    echo "Enter WiFi password for $WIFI_SSID:"
+    read -rs WIFI_PASS
+    echo
     echo "No ethernet detected. Connecting to WiFi: $WIFI_SSID..."
 
     # Connect via nmcli
@@ -90,6 +90,10 @@ else
     echo "Internet connectivity confirmed."
 fi
 
+#Force apt to use IPv4 (avoids unreachable IPv6 routes on ppa.launchpadcontent.net)
+
+echo 'Acquire::ForceIPv4 "true";' > /etc/apt/apt.conf.d/99force-ipv4
+
 #Change updates mirror
 
 sed -i -e s,http://be.archive.ubuntu.com/ubuntu/,http://us.archive.ubuntu.com/ubuntu/,g /etc/apt/sources.list.d/ubuntu.sources
@@ -97,6 +101,12 @@ sed -i -e s,http://be.archive.ubuntu.com/ubuntu/,http://us.archive.ubuntu.com/ub
 #Remove Canon Drivers
 
 dpkg -P cnrdrvcups-ufr2-uk
+
+#Remove PostgreSQL (base image ships a full install — not needed on workstations)
+
+apt purge -y postgresql* libpq-dev 2>/dev/null || true
+rm -f /etc/apt/sources.list.d/pgdg.list
+rm -f /etc/apt/trusted.gpg.d/postgresql*
 
 #Stop packagekitd
 
@@ -106,7 +116,9 @@ systemctl stop packagekit.service
 
 systemctl stop unattended-upgrades.service
 
-sleep 30
+echo "Waiting for packagekit and unattended-upgrades to stop..."
+while systemctl is-active --quiet packagekit.service; do sleep 1; done
+while systemctl is-active --quiet unattended-upgrades.service; do sleep 1; done
 
 #Remove snap store
 
@@ -114,12 +126,19 @@ snap remove snap-store
 
 #Uninstall deb apps
 
-for f in `cat ./uninstall-deb-apps.txt` ; do apt remove -y $f ; done
+while IFS= read -r f; do apt remove -y "$f"; done < ./uninstall-deb-apps.txt
+
+#Remove OnlyOffice flatpak (replacing with deb version)
+
+flatpak uninstall -y org.onlyoffice.desktopeditors 2>/dev/null || true
 
 #Remove old or invalid deb repos
 
 rm -rf /etc/apt/sources.list.d/*.save
 rm -rf /etc/apt/sources.list.d/archive_uri-http_us_archive_ubuntu_com_ubuntu-noble.list
+rm -f /etc/apt/sources.list.d/mozilla.list
+rm -f /etc/apt/keyrings/packages.mozilla.org.asc \
+       /etc/apt/trusted.gpg.d/packages.mozilla.org.gpg
 
 #Add VSCode apt repository
 
@@ -127,22 +146,25 @@ wget -qO /tmp/microsoft.asc https://packages.microsoft.com/keys/microsoft.asc
 if [ ! -s /tmp/microsoft.asc ]; then
     echo "ERROR: Failed to download Microsoft GPG key. Skipping VSCode repo."
 else
-    gpg --dearmor < /tmp/microsoft.asc > /etc/apt/keyrings/microsoft.gpg
-    chmod 644 /etc/apt/keyrings/microsoft.gpg
-    rm -f /tmp/microsoft.asc
-    # Write sources file using tee — avoids heredoc indentation and printf escape issues
+    gpg --dearmor < /tmp/microsoft.asc > /tmp/microsoft.gpg
+    install -D -o root -g root -m 644 /tmp/microsoft.gpg /usr/share/keyrings/microsoft.gpg
+    rm -f /tmp/microsoft.asc /tmp/microsoft.gpg
     tee /etc/apt/sources.list.d/vscode.sources > /dev/null << 'VSEOF'
 Types: deb
 URIs: https://packages.microsoft.com/repos/code
 Suites: stable
 Components: main
-Architectures: amd64 arm64 armhf
-Signed-By: /etc/apt/keyrings/microsoft.gpg
+Architectures: amd64,arm64,armhf
+Signed-By: /usr/share/keyrings/microsoft.gpg
 VSEOF
     echo "VSCode repository configured."
 fi
 
 #Add Warp Terminal apt repository
+
+# Remove legacy formats from prior runs to avoid Signed-By conflicts
+rm -f /etc/apt/sources.list.d/warpdotdev.sources \
+       /etc/apt/trusted.gpg.d/warpdotdev.gpg
 
 wget -qO /tmp/warp.asc https://releases.warp.dev/linux/keys/warp.asc
 if [ ! -s /tmp/warp.asc ]; then
@@ -151,55 +173,36 @@ else
     gpg --dearmor < /tmp/warp.asc > /etc/apt/keyrings/warpdotdev.gpg
     chmod 644 /etc/apt/keyrings/warpdotdev.gpg
     rm -f /tmp/warp.asc
-    tee /etc/apt/sources.list.d/warpdotdev.sources > /dev/null << 'WARPEOF'
-Types: deb
-URIs: https://releases.warp.dev/linux/deb
-Suites: stable
-Components: main
-Architectures: amd64
-Signed-By: /etc/apt/keyrings/warpdotdev.gpg
-WARPEOF
+    echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/warpdotdev.gpg] https://releases.warp.dev/linux/deb stable main" \
+        > /etc/apt/sources.list.d/warpdotdev.list
     echo "Warp Terminal repository configured."
 fi
 
-#Add Firefox repo (Mozilla official APT — not Snap)
-# packages.mozilla.org serves Firefox only
+#Add Mozilla Team PPA (Firefox and Thunderbird — not Snap)
 
-# Remove Firefox snap stub if present
+# Remove Firefox and Thunderbird snap stubs if present
 snap remove firefox 2>/dev/null || true
+snap remove thunderbird 2>/dev/null || true
 
-# Block Ubuntu's Firefox snap stub via apt pin
-cat > /etc/apt/preferences.d/no-snap-firefox << 'PINEOF'
+# Block Ubuntu's snap stubs via apt pin
+cat > /etc/apt/preferences.d/no-snap-mozilla << 'PINEOF'
 Package: firefox
+Pin: release o=Ubuntu
+Pin-Priority: -1
+
+Package: thunderbird
 Pin: release o=Ubuntu
 Pin-Priority: -1
 PINEOF
 
-install -d -m 0755 /etc/apt/keyrings
-wget -qO /tmp/mozilla-repo-signing-key.gpg https://packages.mozilla.org/apt/repo-signing-key.gpg
-if [ ! -s /tmp/mozilla-repo-signing-key.gpg ]; then
-    echo "ERROR: Failed to download Mozilla GPG key. Skipping Firefox repo."
-else
-    gpg --dearmor < /tmp/mozilla-repo-signing-key.gpg > /etc/apt/keyrings/packages.mozilla.org.gpg
-    chmod 644 /etc/apt/keyrings/packages.mozilla.org.gpg
-    rm -f /tmp/mozilla-repo-signing-key.gpg
-    tee /etc/apt/sources.list.d/mozilla.sources > /dev/null << 'MOZEOF'
-Types: deb
-URIs: https://packages.mozilla.org/apt
-Suites: mozilla
-Components: main
-Signed-By: /etc/apt/keyrings/packages.mozilla.org.gpg
-MOZEOF
-    cat > /etc/apt/preferences.d/mozilla << 'MOZEOF'
-Package: *
-Pin: origin packages.mozilla.org
+# Add mozillateam PPA and pin it to take priority
+add-apt-repository -y ppa:mozillateam/ppa
+cat > /etc/apt/preferences.d/mozillateam-ppa << 'PINEOF'
+Package: firefox* thunderbird*
+Pin: release o=LP-PPA-mozillateam
 Pin-Priority: 1001
-MOZEOF
-    echo "Firefox (Mozilla APT) repository configured."
-fi
-
-# Remove Thunderbird snap stub if present (Thunderbird installed via Flatpak instead)
-snap remove thunderbird 2>/dev/null || true
+PINEOF
+echo "Mozilla Team PPA (Firefox + Thunderbird) configured."
 
 #Add Brave browser deb repository
 
@@ -221,9 +224,108 @@ else
     fi
 fi
 
-#Install New deb packages
+#Add OnlyOffice apt repository
 
-apt update && apt upgrade -y && apt autoremove -y
+wget -qO /tmp/onlyoffice.asc https://download.onlyoffice.com/GPG-KEY-ONLYOFFICE
+if [ ! -s /tmp/onlyoffice.asc ]; then
+    echo "ERROR: Failed to download OnlyOffice GPG key. Skipping OnlyOffice repo."
+else
+    gpg --dearmor < /tmp/onlyoffice.asc > /etc/apt/keyrings/onlyoffice.gpg
+    chmod 644 /etc/apt/keyrings/onlyoffice.gpg
+    rm -f /tmp/onlyoffice.asc
+    tee /etc/apt/sources.list.d/onlyoffice.sources > /dev/null << 'OOEOF'
+Types: deb
+URIs: https://download.onlyoffice.com/repo/debian
+Suites: squeeze
+Components: main
+Signed-By: /etc/apt/keyrings/onlyoffice.gpg
+OOEOF
+    echo "OnlyOffice repository configured."
+fi
+
+#Add AnyDesk apt repository
+
+wget -qO /tmp/anydesk.asc https://keys.anydesk.com/repos/DEB-GPG-KEY
+if [ ! -s /tmp/anydesk.asc ]; then
+    echo "ERROR: Failed to download AnyDesk GPG key. Skipping AnyDesk repo."
+else
+    gpg --dearmor < /tmp/anydesk.asc > /etc/apt/keyrings/anydesk.gpg
+    chmod 644 /etc/apt/keyrings/anydesk.gpg
+    rm -f /tmp/anydesk.asc
+    tee /etc/apt/sources.list.d/anydesk.sources > /dev/null << 'ADEOF'
+Types: deb
+URIs: https://deb.anydesk.com
+Suites: all
+Components: main
+Signed-By: /etc/apt/keyrings/anydesk.gpg
+ADEOF
+    echo "AnyDesk repository configured."
+fi
+
+#Add pgAdmin4 apt repository
+
+curl -fsS https://www.pgadmin.org/static/packages_pgadmin_org.pub | gpg --dearmor > /etc/apt/keyrings/packages-pgadmin-org.gpg
+chmod 644 /etc/apt/keyrings/packages-pgadmin-org.gpg
+tee /etc/apt/sources.list.d/pgadmin4.sources > /dev/null << 'PGEOF'
+Types: deb
+URIs: https://ftp.postgresql.org/pub/pgadmin/pgadmin4/apt/noble
+Suites: pgadmin4
+Components: main
+Signed-By: /etc/apt/keyrings/packages-pgadmin-org.gpg
+PGEOF
+echo "pgAdmin4 repository configured."
+
+#Add NodeSource LTS apt repository (latest Node.js/NPM)
+
+curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /usr/share/keyrings/nodesource.gpg
+chmod 644 /usr/share/keyrings/nodesource.gpg
+echo "deb [signed-by=/usr/share/keyrings/nodesource.gpg] https://deb.nodesource.com/node_lts.x nodistro main" \
+    > /etc/apt/sources.list.d/nodesource.list
+echo "NodeSource LTS repository configured."
+
+#Add LibreOffice PPA (latest stable, replaces distro version)
+
+add-apt-repository -y ppa:libreoffice/ppa
+
+#Add Neovim PPA (latest stable, distro repo is behind)
+
+add-apt-repository -y ppa:neovim-ppa/stable
+
+#Add Touchegg PPA
+
+add-apt-repository -y ppa:touchegg/stable
+
+#Remove Google Chrome user data and system defaults
+
+rm -rf /home/odoo/.config/google-chrome
+rm -rf /home/odoo/.cache/google-chrome
+rm -rf /home/odoo/.local/share/google-chrome
+rm -rf /etc/default/google-chrome
+rm -rf /etc/opt/chrome/
+
+#Install deb packages
+
+apt update && apt --fix-broken install -y && apt upgrade -y && apt autoremove -y
+
+while IFS= read -r f; do apt install -y "$f"; done < ./deb_install.txt
+
+#Install ELAN fingerprint driver (ThinkPad E16 Gen 1 only)
+
+PRODUCT_VERSION_FP=$(cat /sys/class/dmi/id/product_version 2>/dev/null)
+if echo "$PRODUCT_VERSION_FP" | grep -qE "21JT|21JU"; then
+    echo "ThinkPad E16 Gen 1 AMD (21JT/21JU) detected. Installing ELAN fingerprint driver..."
+    add-apt-repository -y ppa:libfprint-tod1-group/ppa
+    apt update -qq
+    apt install -y libfprint-2-tod1-elan
+    echo "ELAN fingerprint driver installed."
+else
+    echo "Model is '$PRODUCT_VERSION_FP' - not a ThinkPad E16 Gen 1. Skipping ELAN driver."
+fi
+
+#Install Google Gemini CLI
+
+npm install -g @google/gemini-cli
+echo "Google Gemini CLI installed."
 
 #Balena Etcher (download latest release directly from GitHub)
 
@@ -239,57 +341,52 @@ else
     echo "Balena Etcher v${ETCHER_VERSION} installed."
 fi
 
-#Remove Google Chrome user confuration
+#RustDesk (download latest release directly from GitHub)
 
-rm -rf /home/odoo/.config/google-chrome
+RUSTDESK_VERSION=$(curl -s https://api.github.com/repos/rustdesk/rustdesk/releases/latest | grep -oP '"tag_name": "\K[^"]+' | tr -d 'v')
 
-#Remove Google Chrome System Defaults
-
-rm -rf /etc/default/google-chrome
-
-#Apt, update, upgrade and autoremove
-
-apt update && apt --fix-broken install -y && apt upgrade -y
-apt autoremove -y
-
-#Install deb packages
-
-for f in `cat ./deb_install.txt` ; do apt install -y $f ; done
+if [ -z "$RUSTDESK_VERSION" ]; then
+    echo "WARNING: Could not determine latest RustDesk version. Skipping RustDesk install."
+else
+    echo "Installing RustDesk v${RUSTDESK_VERSION}..."
+    wget -q "https://github.com/rustdesk/rustdesk/releases/download/${RUSTDESK_VERSION}/rustdesk-${RUSTDESK_VERSION}-x86_64.deb"
+    apt install -y ./rustdesk-${RUSTDESK_VERSION}-x86_64.deb
+    rm -f ./rustdesk-${RUSTDESK_VERSION}-x86_64.deb
+    echo "RustDesk v${RUSTDESK_VERSION} installed."
+fi
 
 #Install flatpaks from USB Drive
 
 flatpak remote-modify --collection-id=org.flathub.Stable flathub
-for f in `cat ./flatpaks_install.txt` ; do flatpak install --sideload-repo=./flatpaks/.ostree/repo flathub -y $f ; done
-
-#Manual Flatpak installs
-
-#Zoom
-
-flatpak install -y app/us.zoom.Zoom/x86_64/stable
+while IFS= read -r f; do flatpak install --sideload-repo=./flatpaks/.ostree/repo flathub -y "$f"; done < ./flatpaks_install.txt
 
 #Update Flatpaks
 
 flatpak update -y
 
-#Install Touchegg PPA
-
-add-apt-repository -y ppa:touchegg/stable
-
-apt install -y touchegg
-
-#Install touche
-
-flatpak install -y com.github.joseexposito.touche
-
 #Install x11-gestures
 
-sudo -u odoo bash -c 'gnome-extensions install ./x11gesturesjoseexposito.github.io.v25.shell-extension.zip'
-
-sleep 10
-
-#Enable x11-gestures
-
-sudo -u odoo bash -c 'gnome-extensions enable x11gestures@joseexposito.github.io'
+GNOME_VERSION=$(gnome-shell --version 2>/dev/null | grep -oP '\d+\.\d+' | head -1)
+X11G_URL="https://extensions.gnome.org/download-extension/x11gestures@joseexposito.github.io.shell-extension.zip?shell_version=${GNOME_VERSION}"
+wget -qO /tmp/x11gestures.zip "$X11G_URL"
+if [ ! -s /tmp/x11gestures.zip ]; then
+    echo "WARNING: Could not download x11-gestures for GNOME ${GNOME_VERSION}. Skipping."
+else
+    sudo -u odoo bash -c 'gnome-extensions install /tmp/x11gestures.zip'
+    rm -f /tmp/x11gestures.zip
+    echo "Waiting for x11-gestures extension to register..."
+    ELAPSED=0
+    until sudo -u odoo bash -c 'gnome-extensions list' 2>/dev/null | grep -q 'x11gestures@joseexposito.github.io'; do
+        sleep 1
+        ELAPSED=$((ELAPSED + 1))
+        if [ "$ELAPSED" -ge 30 ]; then
+            echo "WARNING: x11-gestures extension did not register within 30s — continuing anyway."
+            break
+        fi
+    done
+    sudo -u odoo bash -c 'gnome-extensions enable x11gestures@joseexposito.github.io'
+    echo "x11-gestures extension installed and enabled."
+fi
 
 #Set Icon Arrangement and settings
 
@@ -297,9 +394,24 @@ sudo -u odoo bash -c 'dconf load / < odoo-gnome-arrangement.txt'
 
 #Set Wallpapers — system-wide default for all users
 
+# Remove default Ubuntu wallpapers
+rm -rf /usr/share/backgrounds/*
+rm -f /usr/share/gnome-background-properties/ubuntu-wallpapers.xml
+
 mkdir -p /usr/share/backgrounds/odoo/
 cp ./wallpapers/* /usr/share/backgrounds/odoo/
 chmod 644 /usr/share/backgrounds/odoo/*
+
+# Detect primary screen height to select correct tips wallpaper resolution
+SCREEN_HEIGHT=$(cat /sys/class/drm/*/modes 2>/dev/null | grep -oP '^\d+x\K\d+' | sort -rn | head -1)
+if [ "$SCREEN_HEIGHT" = "1200" ]; then
+    TIPS_LIGHT="odoo-wallpaper-tips-light-1920x1200.png"
+    TIPS_DARK="odoo-wallpaper-tips-dark-1920x1200.png"
+else
+    TIPS_LIGHT="odoo-wallpaper-tips-light-1920x1080.png"
+    TIPS_DARK="odoo-wallpaper-tips-dark-1920x1080.png"
+fi
+echo "Screen height detected: ${SCREEN_HEIGHT}px — using ${TIPS_LIGHT} / ${TIPS_DARK}"
 
 # Lock wallpaper via dconf system profile — applies to all users including future ones
 mkdir -p /etc/dconf/profile
@@ -309,10 +421,10 @@ system-db:local
 DCONFEOF
 
 mkdir -p /etc/dconf/db/local.d
-cat > /etc/dconf/db/local.d/01-odoo-wallpaper << 'DCONFEOF'
+cat > /etc/dconf/db/local.d/01-odoo-wallpaper << DCONFEOF
 [org/gnome/desktop/background]
-picture-uri='file:///usr/share/backgrounds/odoo/odoo-wallpaper-tips-light.png'
-picture-uri-dark='file:///usr/share/backgrounds/odoo/odoo-wallpaper-tips-dark.png'
+picture-uri='file:///usr/share/backgrounds/odoo/${TIPS_LIGHT}'
+picture-uri-dark='file:///usr/share/backgrounds/odoo/${TIPS_DARK}'
 picture-options='zoom'
 
 [org/gnome/desktop/screensaver]
@@ -329,9 +441,27 @@ cat > /usr/share/gnome-background-properties/odoo-wallpapers.xml << 'XMLEOF'
 <!DOCTYPE wallpapers SYSTEM "gnome-wp-list.dtd">
 <wallpapers>
   <wallpaper deleted="false">
-    <name>Odoo Tips</name>
-    <filename>/usr/share/backgrounds/odoo/odoo-wallpaper-tips-light.png</filename>
-    <filename-dark>/usr/share/backgrounds/odoo/odoo-wallpaper-tips-dark.png</filename-dark>
+    <name>Odoo Tips (1920x1080)</name>
+    <filename>/usr/share/backgrounds/odoo/odoo-wallpaper-tips-light-1920x1080.png</filename>
+    <filename-dark>/usr/share/backgrounds/odoo/odoo-wallpaper-tips-dark-1920x1080.png</filename-dark>
+    <options>zoom</options>
+    <shade_type>solid</shade_type>
+    <pcolor>#000000</pcolor>
+    <scolor>#000000</scolor>
+  </wallpaper>
+  <wallpaper deleted="false">
+    <name>Odoo Tips (1920x1200)</name>
+    <filename>/usr/share/backgrounds/odoo/odoo-wallpaper-tips-light-1920x1200.png</filename>
+    <filename-dark>/usr/share/backgrounds/odoo/odoo-wallpaper-tips-dark-1920x1200.png</filename-dark>
+    <options>zoom</options>
+    <shade_type>solid</shade_type>
+    <pcolor>#000000</pcolor>
+    <scolor>#000000</scolor>
+  </wallpaper>
+  <wallpaper deleted="false">
+    <name>odoo</name>
+    <filename>/usr/share/backgrounds/odoo/odoo-wallpaper-notips-light.png</filename>
+    <filename-dark>/usr/share/backgrounds/odoo/odoo-wallpaper-notips-dark.png</filename-dark>
     <options>zoom</options>
     <shade_type>solid</shade_type>
     <pcolor>#000000</pcolor>
@@ -345,30 +475,78 @@ cat > /usr/share/gnome-background-properties/odoo-wallpapers.xml << 'XMLEOF'
     <pcolor>#000000</pcolor>
     <scolor>#000000</scolor>
   </wallpaper>
+  <wallpaper deleted="false">
+    <name>Benjamins</name>
+    <filename>/usr/share/backgrounds/odoo/odoo-wallpaper-benjamins.png</filename>
+    <options>zoom</options>
+    <shade_type>solid</shade_type>
+    <pcolor>#000000</pcolor>
+    <scolor>#000000</scolor>
+  </wallpaper>
+  <wallpaper deleted="false">
+    <name>Brussels</name>
+    <filename>/usr/share/backgrounds/odoo/odoo-wallpaper-brussels.png</filename>
+    <options>zoom</options>
+    <shade_type>solid</shade_type>
+    <pcolor>#000000</pcolor>
+    <scolor>#000000</scolor>
+  </wallpaper>
+  <wallpaper deleted="false">
+    <name>San Francisco Night</name>
+    <filename>/usr/share/backgrounds/odoo/odoo-wallpaper-san-francisco.png</filename>
+    <options>zoom</options>
+    <shade_type>solid</shade_type>
+    <pcolor>#000000</pcolor>
+    <scolor>#000000</scolor>
+  </wallpaper>
+  <wallpaper deleted="false">
+    <name>California Poppies</name>
+    <filename>/usr/share/backgrounds/odoo/odoo-wallpaper-california-poppies.png</filename>
+    <options>zoom</options>
+    <shade_type>solid</shade_type>
+    <pcolor>#000000</pcolor>
+    <scolor>#000000</scolor>
+  </wallpaper>
+  <wallpaper deleted="false">
+    <name>San Francisco Cloudy</name>
+    <filename>/usr/share/backgrounds/odoo/odoo-wallpaper-san-francisco-cloudy.png</filename>
+    <options>zoom</options>
+    <shade_type>solid</shade_type>
+    <pcolor>#000000</pcolor>
+    <scolor>#000000</scolor>
+  </wallpaper>
 </wallpapers>
 XMLEOF
 chmod 644 /usr/share/gnome-background-properties/odoo-wallpapers.xml
 echo "System wallpapers installed."  
 
+#Install Odoo Plymouth boot theme
+
+apt install -y plymouth plymouth-themes
+mkdir -p /usr/share/plymouth/themes/odoo
+cp ./plymouth/* /usr/share/plymouth/themes/odoo/
+cp ./plymouth/Caveat-SemiBold.ttf /usr/share/fonts/
+fc-cache -f
+plymouth-set-default-theme -R odoo
+echo "Odoo Plymouth theme installed."
+
 #Enable fingerprint authentication
 
-apt install -y fprintd libpam-fprintd
 pam-auth-update --enable fprintd
 echo "Fingerprint authentication enabled."
+
+#Enable sudo password feedback (show * when typing password)
+
+echo "Defaults pwfeedback" > /etc/sudoers.d/pwfeedback
+chmod 440 /etc/sudoers.d/pwfeedback
+echo "Sudo password feedback enabled."
 
 #Remove gnome keyrings for user odoo
 
 rm -rf /home/odoo/.local/share/keyrings/*
 
-sleep 10
-
 # ── Firmware updates (fwupd) ─────────────────────────────────────────────
 echo "Checking for firmware and BIOS updates..."
-
-# Ensure fwupd is installed
-if ! command -v fwupdmgr &>/dev/null; then
-    apt-get install -y fwupd
-fi
 
 # Refresh metadata from LVFS — abort if unreachable
 echo "Refreshing firmware metadata from LVFS..."
@@ -390,6 +568,5 @@ else
     echo "Firmware updates staged. The system may reboot into firmware update"
     echo "mode before booting into the OS — this is normal."
 fi
-
 
 reboot

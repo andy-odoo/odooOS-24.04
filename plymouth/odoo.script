@@ -1,0 +1,112 @@
+// ── Odoo Plymouth Boot Theme ─────────────────────────────────────────────
+// Boot: animated logo fade-in + 6 icon progress bar (no labels)
+// LUKS: cycles through 4 language screens every 4 seconds
+
+num_frames  = 142;
+loop_start  = 118;
+frame_hold  = 2;
+
+lang_switch_ticks = 240;
+num_langs         = 4;
+
+for (i = 0; i < num_frames; i++) {
+    frame_image[i] = Image("frame-" + String.Format("%04d", i) + ".png");
+}
+
+luks_image[0] = Image("luks-screen-en.png");
+luks_image[1] = Image("luks-screen-fr.png");
+luks_image[2] = Image("luks-screen-es.png");
+luks_image[3] = Image("luks-screen-pt.png");
+
+screen_w = Window.GetWidth();
+screen_h = Window.GetHeight();
+frame_w  = frame_image[0].GetWidth();
+frame_h  = frame_image[0].GetHeight();
+
+anim_sprite = Sprite();
+anim_sprite.SetX(screen_w / 2 - frame_w / 2);
+anim_sprite.SetY(screen_h / 2 - frame_h / 2);
+anim_sprite.SetZ(10);
+anim_sprite.SetImage(frame_image[0]);
+
+for (i = 0; i < num_langs; i++) {
+    luks_sprite[i] = Sprite(luks_image[i]);
+    luks_sprite[i].SetX(screen_w / 2 - luks_image[i].GetWidth()  / 2);
+    luks_sprite[i].SetY(screen_h / 2 - luks_image[i].GetHeight() / 2);
+    luks_sprite[i].SetZ(20);
+    luks_sprite[i].SetOpacity(0);
+}
+
+bullet_image   = Image("bullet.png");
+max_bullets    = 32;
+bullet_abs_x   = screen_w * 0.3224;
+bullet_abs_y   = screen_h * 0.7352;
+bullet_spacing = screen_w * 0.01146;
+
+for (i = 0; i < max_bullets; i++) {
+    bullet_sprite[i] = Sprite(bullet_image);
+    bullet_sprite[i].SetX(bullet_abs_x + i * bullet_spacing);
+    bullet_sprite[i].SetY(bullet_abs_y);
+    bullet_sprite[i].SetZ(30);
+    bullet_sprite[i].SetOpacity(0);
+}
+
+current_frame    = 0;
+tick             = 0;
+showing_password = 0;
+current_lang     = 0;
+lang_tick        = 0;
+
+fun refresh_callback() {
+    tick++;
+
+    if (!showing_password) {
+        if (tick % frame_hold == 0) {
+            anim_sprite.SetImage(frame_image[current_frame]);
+            current_frame++;
+            if (current_frame >= num_frames) {
+                current_frame = loop_start;
+            }
+        }
+    } else {
+        lang_tick++;
+        if (lang_tick >= lang_switch_ticks) {
+            lang_tick = 0;
+            luks_sprite[current_lang].SetOpacity(0);
+            current_lang = (current_lang + 1) % num_langs;
+            luks_sprite[current_lang].SetOpacity(1);
+        }
+    }
+}
+
+fun display_password_callback(prompt, bullets) {
+    showing_password = 1;
+    lang_tick        = 0;
+    current_lang     = 0;
+
+    anim_sprite.SetOpacity(0);
+
+    for (i = 0; i < num_langs; i++) {
+        luks_sprite[i].SetOpacity(i == 0 ? 1 : 0);
+    }
+
+    for (i = 0; i < max_bullets; i++) {
+        bullet_sprite[i].SetOpacity(i < bullets ? 1 : 0);
+    }
+}
+
+fun display_normal_callback() {
+    showing_password = 0;
+
+    for (i = 0; i < num_langs; i++) {
+        luks_sprite[i].SetOpacity(0);
+    }
+    for (i = 0; i < max_bullets; i++) {
+        bullet_sprite[i].SetOpacity(0);
+    }
+    anim_sprite.SetOpacity(1);
+}
+
+Plymouth.SetRefreshFunction        (refresh_callback);
+Plymouth.SetDisplayPasswordFunction(display_password_callback);
+Plymouth.SetDisplayNormalFunction  (display_normal_callback);

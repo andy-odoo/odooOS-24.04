@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=Odoo
+Description=Odoo animated boot screen with LUKS passphrase prompt
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/odoo
+ScriptFile=/usr/share/plymouth/themes/odoo/odoo.script
