@@ -434,6 +434,13 @@ DCONFEOF
 
 dconf update
 
+# Set wallpaper directly in odoo user's dconf database to override any stale settings
+sudo -u odoo dconf write /org/gnome/desktop/background/picture-uri "'file:///usr/share/backgrounds/odoo/${TIPS_LIGHT}'"
+sudo -u odoo dconf write /org/gnome/desktop/background/picture-uri-dark "'file:///usr/share/backgrounds/odoo/${TIPS_DARK}'"
+sudo -u odoo dconf write /org/gnome/desktop/background/picture-options "'zoom'"
+sudo -u odoo dconf write /org/gnome/desktop/screensaver/picture-uri "'file:///usr/share/backgrounds/odoo/odoo-wallpaper-purple.png'"
+sudo -u odoo dconf write /org/gnome/desktop/screensaver/picture-options "'zoom'"
+
 # Register wallpapers in GNOME background picker
 mkdir -p /usr/share/gnome-background-properties
 cat > /usr/share/gnome-background-properties/odoo-wallpapers.xml << XMLEOF
