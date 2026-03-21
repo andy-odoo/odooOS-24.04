@@ -436,23 +436,14 @@ dconf update
 
 # Register wallpapers in GNOME background picker
 mkdir -p /usr/share/gnome-background-properties
-cat > /usr/share/gnome-background-properties/odoo-wallpapers.xml << 'XMLEOF'
+cat > /usr/share/gnome-background-properties/odoo-wallpapers.xml << XMLEOF
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE wallpapers SYSTEM "gnome-wp-list.dtd">
 <wallpapers>
   <wallpaper deleted="false">
-    <name>Odoo Tips (1920x1080)</name>
-    <filename>/usr/share/backgrounds/odoo/odoo-wallpaper-tips-light-1920x1080.png</filename>
-    <filename-dark>/usr/share/backgrounds/odoo/odoo-wallpaper-tips-dark-1920x1080.png</filename-dark>
-    <options>zoom</options>
-    <shade_type>solid</shade_type>
-    <pcolor>#000000</pcolor>
-    <scolor>#000000</scolor>
-  </wallpaper>
-  <wallpaper deleted="false">
-    <name>Odoo Tips (1920x1200)</name>
-    <filename>/usr/share/backgrounds/odoo/odoo-wallpaper-tips-light-1920x1200.png</filename>
-    <filename-dark>/usr/share/backgrounds/odoo/odoo-wallpaper-tips-dark-1920x1200.png</filename-dark>
+    <name>Odoo Tips</name>
+    <filename>/usr/share/backgrounds/odoo/${TIPS_LIGHT}</filename>
+    <filename-dark>/usr/share/backgrounds/odoo/${TIPS_DARK}</filename-dark>
     <options>zoom</options>
     <shade_type>solid</shade_type>
     <pcolor>#000000</pcolor>
@@ -525,9 +516,12 @@ echo "System wallpapers installed."
 apt install -y plymouth plymouth-themes
 mkdir -p /usr/share/plymouth/themes/odoo
 cp ./plymouth/* /usr/share/plymouth/themes/odoo/
+chmod 644 /usr/share/plymouth/themes/odoo/*
 cp ./plymouth/Caveat-SemiBold.ttf /usr/share/fonts/
 fc-cache -f
-plymouth-set-default-theme -R odoo
+plymouth-set-default-theme odoo
+update-initramfs -u
+update-grub
 echo "Odoo Plymouth theme installed."
 
 #Enable fingerprint authentication
@@ -540,6 +534,16 @@ echo "Fingerprint authentication enabled."
 echo "Defaults pwfeedback" > /etc/sudoers.d/pwfeedback
 chmod 440 /etc/sudoers.d/pwfeedback
 echo "Sudo password feedback enabled."
+
+#Disable AnyDesk and RustDesk autostart (launch manually when needed)
+
+systemctl disable anydesk.service 2>/dev/null || true
+systemctl disable rustdesk.service 2>/dev/null || true
+rm -f /etc/xdg/autostart/anydesk.desktop \
+       /etc/xdg/autostart/rustdesk.desktop \
+       /home/odoo/.config/autostart/anydesk.desktop \
+       /home/odoo/.config/autostart/rustdesk.desktop
+echo "AnyDesk and RustDesk autostart disabled."
 
 #Remove gnome keyrings for user odoo
 
