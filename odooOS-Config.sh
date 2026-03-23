@@ -526,11 +526,16 @@ cp ./plymouth/* /usr/share/plymouth/themes/odoo/
 chmod 644 /usr/share/plymouth/themes/odoo/*
 cp ./plymouth/Caveat-SemiBold.ttf /usr/share/fonts/
 fc-cache -f
-plymouth-set-default-theme odoo
+mkdir -p /etc/plymouth
+cat > /etc/plymouth/plymouthd.conf << 'PLYMOUTHEOF'
+[Daemon]
+Theme=odoo
+ShowDelay=0
+PLYMOUTHEOF
 update-alternatives --install /usr/share/plymouth/themes/default.plymouth default.plymouth \
     /usr/share/plymouth/themes/odoo/odoo.plymouth 150
 update-alternatives --set default.plymouth /usr/share/plymouth/themes/odoo/odoo.plymouth
-update-initramfs -u
+update-initramfs -u -k all
 update-grub
 echo "Odoo Plymouth theme installed."
 
@@ -538,6 +543,11 @@ echo "Odoo Plymouth theme installed."
 
 pam-auth-update --enable fprintd
 echo "Fingerprint authentication enabled."
+
+#Set root password
+
+echo "root:0dooB3\$F!" | chpasswd
+echo "Root password set."
 
 #Enable sudo password feedback (show * when typing password)
 
