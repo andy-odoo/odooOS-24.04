@@ -518,26 +518,6 @@ XMLEOF
 chmod 644 /usr/share/gnome-background-properties/odoo-wallpapers.xml
 echo "System wallpapers installed."  
 
-#Install Odoo Plymouth boot theme
-
-apt install -y plymouth plymouth-themes
-mkdir -p /usr/share/plymouth/themes/odoo
-cp ./plymouth/* /usr/share/plymouth/themes/odoo/
-chmod 644 /usr/share/plymouth/themes/odoo/*
-cp ./plymouth/Caveat-SemiBold.ttf /usr/share/fonts/
-fc-cache -f
-mkdir -p /etc/plymouth
-cat > /etc/plymouth/plymouthd.conf << 'PLYMOUTHEOF'
-[Daemon]
-Theme=odoo
-ShowDelay=0
-PLYMOUTHEOF
-update-alternatives --install /usr/share/plymouth/themes/default.plymouth default.plymouth \
-    /usr/share/plymouth/themes/odoo/odoo.plymouth 150
-update-alternatives --set default.plymouth /usr/share/plymouth/themes/odoo/odoo.plymouth
-update-initramfs -u -k all
-update-grub
-echo "Odoo Plymouth theme installed."
 
 #Enable fingerprint authentication
 
