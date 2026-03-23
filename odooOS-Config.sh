@@ -527,6 +527,9 @@ chmod 644 /usr/share/plymouth/themes/odoo/*
 cp ./plymouth/Caveat-SemiBold.ttf /usr/share/fonts/
 fc-cache -f
 plymouth-set-default-theme odoo
+update-alternatives --install /usr/share/plymouth/themes/default.plymouth default.plymouth \
+    /usr/share/plymouth/themes/odoo/odoo.plymouth 150
+update-alternatives --set default.plymouth /usr/share/plymouth/themes/odoo/odoo.plymouth
 update-initramfs -u
 update-grub
 echo "Odoo Plymouth theme installed."
