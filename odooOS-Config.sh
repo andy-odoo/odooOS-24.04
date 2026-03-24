@@ -268,9 +268,9 @@ echo "pgAdmin4 repository configured."
 
 curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /usr/share/keyrings/nodesource.gpg
 chmod 644 /usr/share/keyrings/nodesource.gpg
-echo "deb [signed-by=/usr/share/keyrings/nodesource.gpg] https://deb.nodesource.com/node_lts.x nodistro main" \
+echo "deb [signed-by=/usr/share/keyrings/nodesource.gpg] https://deb.nodesource.com/node_22.x nodistro main" \
     > /etc/apt/sources.list.d/nodesource.list
-echo "NodeSource LTS repository configured."
+echo "NodeSource Node.js 22 LTS repository configured."
 
 #Add LibreOffice PPA (latest stable, replaces distro version)
 
@@ -310,6 +310,7 @@ if echo "$PRODUCT_VERSION_FP" | grep -qE "21JT|21JU"; then
 else
     echo "Model is '$PRODUCT_VERSION_FP' - not a ThinkPad E16 Gen 1. Skipping ELAN driver."
 fi
+
 
 #Install Google Gemini CLI
 
