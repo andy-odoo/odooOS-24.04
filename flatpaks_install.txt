@@ -1,7 +1,6 @@
 app.drey.Dialect
 com.bitwarden.desktop
 com.calibre_ebook.calibre
-com.github.jeromerobert.pdfarranger
 com.github.tchx84.Flatseal
 com.mattjakeman.ExtensionManager
 com.obsproject.Studio

@@ -239,6 +239,18 @@ ADEOF
     echo "AnyDesk repository configured."
 fi
 
+#Add PostgreSQL apt repository (repo only — server not installed)
+
+install -d /usr/share/postgresql-common/pgdg
+curl -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc --fail https://www.postgresql.org/media/keys/ACCC4CF8.asc
+if [ ! -s /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc ]; then
+    echo "ERROR: Failed to download PostgreSQL GPG key. Skipping PostgreSQL repo."
+else
+    . /etc/os-release
+    echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $VERSION_CODENAME-pgdg main" > /etc/apt/sources.list.d/pgdg.list
+    echo "PostgreSQL repository configured."
+fi
+
 #Add pgAdmin4 apt repository
 
 curl -fsS https://www.pgadmin.org/static/packages_pgadmin_org.pub | gpg --dearmor > /etc/apt/keyrings/packages-pgadmin-org.gpg
@@ -369,6 +381,14 @@ fi
 
 sudo -u odoo bash -c 'dconf load / < odoo-gnome-arrangement.txt'
 
+#Set GNOME Papers as default PDF handler
+
+sudo -u odoo xdg-mime default org.onlyoffice.desktopeditors.desktop application/pdf
+sudo -u odoo xdg-mime default org.onlyoffice.desktopeditors.desktop application/vnd.openxmlformats-officedocument.wordprocessingml.document
+sudo -u odoo xdg-mime default org.onlyoffice.desktopeditors.desktop application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+sudo -u odoo xdg-mime default org.onlyoffice.desktopeditors.desktop application/vnd.openxmlformats-officedocument.presentationml.presentation
+sudo -u odoo xdg-mime default org.gnome.TextEditor.desktop text/plain
+
 #Set Wallpapers — system-wide default for all users
 
 # Remove default Ubuntu wallpapers
@@ -445,6 +465,78 @@ cat > /usr/share/gnome-background-properties/odoo-wallpapers.xml << XMLEOF
   <wallpaper deleted="false">
     <name>Odoo Purple</name>
     <filename>/usr/share/backgrounds/odoo/odoo-wallpaper-purple.png</filename>
+    <options>zoom</options>
+    <shade_type>solid</shade_type>
+    <pcolor>#000000</pcolor>
+    <scolor>#000000</scolor>
+  </wallpaper>
+  <wallpaper deleted="false">
+    <name>Arches</name>
+    <filename>/usr/share/backgrounds/odoo/odoo-wallpaper-arches.jpg</filename>
+    <options>zoom</options>
+    <shade_type>solid</shade_type>
+    <pcolor>#000000</pcolor>
+    <scolor>#000000</scolor>
+  </wallpaper>
+  <wallpaper deleted="false">
+    <name>Mossbrae Falls</name>
+    <filename>/usr/share/backgrounds/odoo/odoo-wallpaper-mossbrae-falls.jpg</filename>
+    <options>zoom</options>
+    <shade_type>solid</shade_type>
+    <pcolor>#000000</pcolor>
+    <scolor>#000000</scolor>
+  </wallpaper>
+  <wallpaper deleted="false">
+    <name>Monument Valley</name>
+    <filename>/usr/share/backgrounds/odoo/odoo-wallpaper-monument-valley.jpg</filename>
+    <options>zoom</options>
+    <shade_type>solid</shade_type>
+    <pcolor>#000000</pcolor>
+    <scolor>#000000</scolor>
+  </wallpaper>
+  <wallpaper deleted="false">
+    <name>Mexican Hat</name>
+    <filename>/usr/share/backgrounds/odoo/odoo-wallpaper-mexican-hat.jpg</filename>
+    <options>zoom</options>
+    <shade_type>solid</shade_type>
+    <pcolor>#000000</pcolor>
+    <scolor>#000000</scolor>
+  </wallpaper>
+  <wallpaper deleted="false">
+    <name>Yosemite</name>
+    <filename>/usr/share/backgrounds/odoo/odoo-wallpaper-yosemite.jpg</filename>
+    <options>zoom</options>
+    <shade_type>solid</shade_type>
+    <pcolor>#000000</pcolor>
+    <scolor>#000000</scolor>
+  </wallpaper>
+  <wallpaper deleted="false">
+    <name>Giraffe</name>
+    <filename>/usr/share/backgrounds/odoo/odoo-wallpaper-giraffe.jpg</filename>
+    <options>zoom</options>
+    <shade_type>solid</shade_type>
+    <pcolor>#000000</pcolor>
+    <scolor>#000000</scolor>
+  </wallpaper>
+  <wallpaper deleted="false">
+    <name>Wild Boar</name>
+    <filename>/usr/share/backgrounds/odoo/odoo-wallpaper-wild-boar.jpg</filename>
+    <options>zoom</options>
+    <shade_type>solid</shade_type>
+    <pcolor>#000000</pcolor>
+    <scolor>#000000</scolor>
+  </wallpaper>
+  <wallpaper deleted="false">
+    <name>Lion</name>
+    <filename>/usr/share/backgrounds/odoo/odoo-wallpaper-lion.jpg</filename>
+    <options>zoom</options>
+    <shade_type>solid</shade_type>
+    <pcolor>#000000</pcolor>
+    <scolor>#000000</scolor>
+  </wallpaper>
+  <wallpaper deleted="false">
+    <name>Bison</name>
+    <filename>/usr/share/backgrounds/odoo/odoo-wallpaper-bison.jpg</filename>
     <options>zoom</options>
     <shade_type>solid</shade_type>
     <pcolor>#000000</pcolor>
