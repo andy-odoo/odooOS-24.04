@@ -22,7 +22,6 @@ fprintd
 libpam-fprintd
 touchegg
 dconf-editor
-onlyoffice-desktopeditors
 gnome-shell-extensions
 loupe
 totem

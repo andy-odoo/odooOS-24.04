@@ -128,10 +128,6 @@ snap remove snap-store
 
 while IFS= read -r f; do apt remove -y "$f"; done < ./uninstall-deb-apps.txt
 
-#Remove OnlyOffice flatpak (replacing with deb version)
-
-flatpak uninstall -y org.onlyoffice.desktopeditors 2>/dev/null || true
-
 #Remove old or invalid deb repos
 
 rm -rf /etc/apt/sources.list.d/*.save
@@ -222,25 +218,6 @@ else
             /etc/apt/sources.list.d/brave-browser-release.sources
         echo "Brave browser repository configured."
     fi
-fi
-
-#Add OnlyOffice apt repository
-
-wget -qO /tmp/onlyoffice.asc https://download.onlyoffice.com/GPG-KEY-ONLYOFFICE
-if [ ! -s /tmp/onlyoffice.asc ]; then
-    echo "ERROR: Failed to download OnlyOffice GPG key. Skipping OnlyOffice repo."
-else
-    gpg --dearmor < /tmp/onlyoffice.asc > /etc/apt/keyrings/onlyoffice.gpg
-    chmod 644 /etc/apt/keyrings/onlyoffice.gpg
-    rm -f /tmp/onlyoffice.asc
-    tee /etc/apt/sources.list.d/onlyoffice.sources > /dev/null << 'OOEOF'
-Types: deb
-URIs: https://download.onlyoffice.com/repo/debian
-Suites: squeeze
-Components: main
-Signed-By: /etc/apt/keyrings/onlyoffice.gpg
-OOEOF
-    echo "OnlyOffice repository configured."
 fi
 
 #Add AnyDesk apt repository
