@@ -284,6 +284,10 @@ add-apt-repository -y ppa:neovim-ppa/stable
 
 add-apt-repository -y ppa:touchegg/stable
 
+#Add Darktable PPA
+
+add-apt-repository -y ppa:ubuntuhandbook1/darktable
+
 #Remove Google Chrome user data and system defaults
 
 rm -rf /home/odoo/.config/google-chrome
