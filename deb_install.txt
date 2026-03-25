@@ -12,6 +12,7 @@ gnome-calendar
 dbus-x11
 brave-browser
 audacity
+obs-studio
 darktable
 transmission-gtk
 simple-scan

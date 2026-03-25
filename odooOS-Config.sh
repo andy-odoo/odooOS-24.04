@@ -288,6 +288,10 @@ add-apt-repository -y ppa:touchegg/stable
 
 add-apt-repository -y ppa:ubuntuhandbook1/darktable
 
+#Add OBS Studio PPA
+
+add-apt-repository -y ppa:obsproject/obs-studio
+
 #Remove Google Chrome user data and system defaults
 
 rm -rf /home/odoo/.config/google-chrome
