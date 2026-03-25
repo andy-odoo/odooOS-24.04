@@ -20,6 +20,7 @@ warp-terminal
 code
 libreoffice
 remmina
+putty
 fprintd
 libpam-fprintd
 touchegg

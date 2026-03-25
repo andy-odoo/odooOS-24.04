@@ -23,6 +23,5 @@ org.sqlitebrowser.sqlitebrowser
 org.strawberrymusicplayer.strawberry
 de.haeckerfelix.Shortwave
 org.telegram.desktop
-uk.org.greenend.chiark.sgtatham.putty
 org.ferdium.Ferdium
 us.zoom.Zoom
