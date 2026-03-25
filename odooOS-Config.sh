@@ -300,6 +300,17 @@ rm -rf /home/odoo/.local/share/google-chrome
 rm -rf /etc/default/google-chrome
 rm -rf /etc/opt/chrome/
 
+#Restore apt cache from SSD if available
+
+SSD_APT_CACHE="$(dirname "$0")/apt-cache"
+if [ -d "$SSD_APT_CACHE" ] && [ -n "$(ls -A "$SSD_APT_CACHE"/*.deb 2>/dev/null)" ]; then
+    echo "Restoring apt cache from SSD..."
+    cp "$SSD_APT_CACHE"/*.deb /var/cache/apt/archives/ 2>/dev/null || true
+    echo "apt cache restored."
+else
+    echo "No SSD apt cache found — packages will be downloaded."
+fi
+
 #Install deb packages
 
 apt update && apt --fix-broken install -y && apt upgrade -y && apt autoremove -y
@@ -622,6 +633,16 @@ rm -f /etc/xdg/autostart/anydesk.desktop \
        /home/odoo/.config/autostart/anydesk.desktop \
        /home/odoo/.config/autostart/rustdesk.desktop
 echo "AnyDesk and RustDesk autostart disabled."
+
+#Sync apt cache back to SSD
+
+if [ -d "$SSD_APT_CACHE" ] || mkdir -p "$SSD_APT_CACHE" 2>/dev/null; then
+    echo "Syncing apt cache to SSD..."
+    cp /var/cache/apt/archives/*.deb "$SSD_APT_CACHE"/ 2>/dev/null || true
+    apt-get autoclean --dry-run 2>/dev/null | grep ^Del | awk '{print $2}' | \
+        xargs -I{} rm -f "$SSD_APT_CACHE"/{}*.deb 2>/dev/null || true
+    echo "apt cache synced to SSD."
+fi
 
 #Remove gnome keyrings for user odoo
 
