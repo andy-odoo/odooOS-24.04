@@ -6,7 +6,7 @@ com.mattjakeman.ExtensionManager
 com.obsproject.Studio
 com.vixalien.sticky
 edu.mit.Scratch
-io.missioncenter.MissionCenter
+net.nokyan.Resources
 net.scribus.Scribus
 net.xmind.XMind
 org.gimp.GIMP
