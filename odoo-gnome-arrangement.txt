@@ -43,7 +43,7 @@ prompt-check='2026-03-25T00:16:33.743665Z'
 folder-children=['Utilities', 'YaST', 'Pardus', 'edfd0215-8cac-4c64-b0bc-29d76bf26b7e', '8b635fab-22f7-4457-9846-3c6abc8c7998', '5d44aacd-b163-48e7-83a2-276ee3353c2c', '88032d08-d2ac-498e-9cb9-0410b56ba00c', '24a95fbc-1e10-4041-b1fe-2c03acb41194', '835fe221-1e4b-49cd-8d84-5aa4b8349ec4']
 
 [org/gnome/desktop/app-folders/folders/24a95fbc-1e10-4041-b1fe-2c03acb41194]
-apps=['org.gimp.GIMP.desktop', 'org.inkscape.Inkscape.desktop', 'com.github.PintaProject.Pinta.desktop', 'org.gnome.gThumb.desktop']
+apps=['org.gimp.GIMP.desktop', 'org.inkscape.Inkscape.desktop', 'com.github.PintaProject.Pinta.desktop', 'org.gnome.gThumb.desktop', 'darktable.desktop']
 name='Graphics'
 
 [org/gnome/desktop/app-folders/folders/5d44aacd-b163-48e7-83a2-276ee3353c2c]
