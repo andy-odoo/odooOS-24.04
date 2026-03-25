@@ -138,7 +138,7 @@ rm -f /etc/apt/keyrings/packages.mozilla.org.asc \
 
 #Add VSCode apt repository
 
-wget -qO /tmp/microsoft.asc https://packages.microsoft.com/keys/microsoft.asc
+wget -q --tries=3 -O /tmp/microsoft.asc https://packages.microsoft.com/keys/microsoft.asc
 if [ ! -s /tmp/microsoft.asc ]; then
     echo "ERROR: Failed to download Microsoft GPG key. Skipping VSCode repo."
 else
@@ -162,7 +162,7 @@ fi
 rm -f /etc/apt/sources.list.d/warpdotdev.sources \
        /etc/apt/trusted.gpg.d/warpdotdev.gpg
 
-wget -qO /tmp/warp.asc https://releases.warp.dev/linux/keys/warp.asc
+wget -q --tries=3 -O /tmp/warp.asc https://releases.warp.dev/linux/keys/warp.asc
 if [ ! -s /tmp/warp.asc ]; then
     echo "ERROR: Failed to download Warp GPG key. Skipping Warp repo."
 else
@@ -222,7 +222,7 @@ fi
 
 #Add AnyDesk apt repository
 
-wget -qO /tmp/anydesk.asc https://keys.anydesk.com/repos/DEB-GPG-KEY
+wget -q --tries=3 -O /tmp/anydesk.asc https://keys.anydesk.com/repos/DEB-GPG-KEY
 if [ ! -s /tmp/anydesk.asc ]; then
     echo "ERROR: Failed to download AnyDesk GPG key. Skipping AnyDesk repo."
 else
@@ -325,7 +325,7 @@ if [ -z "$ETCHER_VERSION" ]; then
     echo "WARNING: Could not determine latest Etcher version. Skipping Etcher install."
 else
     echo "Installing Balena Etcher v${ETCHER_VERSION}..."
-    wget -q "https://github.com/balena-io/etcher/releases/download/v${ETCHER_VERSION}/balena-etcher_${ETCHER_VERSION}_amd64.deb"
+    wget -q --tries=3 "https://github.com/balena-io/etcher/releases/download/v${ETCHER_VERSION}/balena-etcher_${ETCHER_VERSION}_amd64.deb"
     apt install -y ./balena-etcher_${ETCHER_VERSION}_amd64.deb
     rm -f ./balena-etcher_${ETCHER_VERSION}_amd64.deb
     echo "Balena Etcher v${ETCHER_VERSION} installed."
@@ -339,7 +339,7 @@ if [ -z "$RUSTDESK_VERSION" ]; then
     echo "WARNING: Could not determine latest RustDesk version. Skipping RustDesk install."
 else
     echo "Installing RustDesk v${RUSTDESK_VERSION}..."
-    wget -q "https://github.com/rustdesk/rustdesk/releases/download/${RUSTDESK_VERSION}/rustdesk-${RUSTDESK_VERSION}-x86_64.deb"
+    wget -q --tries=3 "https://github.com/rustdesk/rustdesk/releases/download/${RUSTDESK_VERSION}/rustdesk-${RUSTDESK_VERSION}-x86_64.deb"
     apt install -y ./rustdesk-${RUSTDESK_VERSION}-x86_64.deb
     rm -f ./rustdesk-${RUSTDESK_VERSION}-x86_64.deb
     echo "RustDesk v${RUSTDESK_VERSION} installed."
@@ -358,7 +358,7 @@ flatpak update -y
 
 GNOME_VERSION=$(gnome-shell --version 2>/dev/null | grep -oP '\d+\.\d+' | head -1)
 X11G_URL="https://extensions.gnome.org/download-extension/x11gestures@joseexposito.github.io.shell-extension.zip?shell_version=${GNOME_VERSION}"
-wget -qO /tmp/x11gestures.zip "$X11G_URL"
+wget -q --tries=3 -O /tmp/x11gestures.zip "$X11G_URL"
 if [ ! -s /tmp/x11gestures.zip ]; then
     echo "WARNING: Could not download x11-gestures for GNOME ${GNOME_VERSION}. Skipping."
 else
