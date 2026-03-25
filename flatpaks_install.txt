@@ -3,7 +3,6 @@ com.bitwarden.desktop
 com.calibre_ebook.calibre
 com.github.tchx84.Flatseal
 com.mattjakeman.ExtensionManager
-com.obsproject.Studio
 com.vixalien.sticky
 edu.mit.Scratch
 net.nokyan.Resources
