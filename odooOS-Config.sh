@@ -388,7 +388,7 @@ sudo -u odoo bash -c 'dconf load / < odoo-gnome-arrangement.txt'
 
 #Set GNOME Papers as default PDF handler
 
-sudo -u odoo xdg-mime default org.onlyoffice.desktopeditors.desktop application/pdf
+sudo -u odoo xdg-mime default org.gnome.Papers.desktop application/pdf
 sudo -u odoo xdg-mime default org.onlyoffice.desktopeditors.desktop application/vnd.openxmlformats-officedocument.wordprocessingml.document
 sudo -u odoo xdg-mime default org.onlyoffice.desktopeditors.desktop application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
 sudo -u odoo xdg-mime default org.onlyoffice.desktopeditors.desktop application/vnd.openxmlformats-officedocument.presentationml.presentation
