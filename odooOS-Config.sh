@@ -296,7 +296,7 @@ rm -rf /etc/opt/chrome/
 
 #Restore apt cache from SSD if available
 
-SSD_APT_CACHE="$(dirname "$0")/apt-cache"
+SSD_APT_CACHE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/apt-cache"
 if [ -d "$SSD_APT_CACHE" ] && [ -n "$(ls -A "$SSD_APT_CACHE"/*.deb 2>/dev/null)" ]; then
     echo "Restoring apt cache from SSD..."
     cp "$SSD_APT_CACHE"/*.deb /var/cache/apt/archives/ 2>/dev/null || true
