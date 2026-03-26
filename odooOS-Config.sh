@@ -138,13 +138,8 @@ rm -f /etc/apt/keyrings/packages.mozilla.org.asc \
 
 #Add VSCode apt repository
 
-wget -q --tries=3 -O /tmp/microsoft.asc https://packages.microsoft.com/keys/microsoft.asc
-if [ ! -s /tmp/microsoft.asc ]; then
-    echo "ERROR: Failed to download Microsoft GPG key. Skipping VSCode repo."
-else
-    gpg --dearmor < /tmp/microsoft.asc > /tmp/microsoft.gpg
-    install -D -o root -g root -m 644 /tmp/microsoft.gpg /usr/share/keyrings/microsoft.gpg
-    rm -f /tmp/microsoft.asc /tmp/microsoft.gpg
+if curl -fsSL --retry 3 https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > /usr/share/keyrings/microsoft.gpg; then
+    chmod 644 /usr/share/keyrings/microsoft.gpg
     tee /etc/apt/sources.list.d/vscode.sources > /dev/null << 'VSEOF'
 Types: deb
 URIs: https://packages.microsoft.com/repos/code
@@ -154,6 +149,9 @@ Architectures: amd64,arm64,armhf
 Signed-By: /usr/share/keyrings/microsoft.gpg
 VSEOF
     echo "VSCode repository configured."
+else
+    echo "ERROR: Failed to download Microsoft GPG key. Skipping VSCode repo."
+    rm -f /usr/share/keyrings/microsoft.gpg
 fi
 
 #Add Warp Terminal apt repository
@@ -162,16 +160,14 @@ fi
 rm -f /etc/apt/sources.list.d/warpdotdev.sources \
        /etc/apt/trusted.gpg.d/warpdotdev.gpg
 
-wget -q --tries=3 -O /tmp/warp.asc https://releases.warp.dev/linux/keys/warp.asc
-if [ ! -s /tmp/warp.asc ]; then
-    echo "ERROR: Failed to download Warp GPG key. Skipping Warp repo."
-else
-    gpg --dearmor < /tmp/warp.asc > /etc/apt/keyrings/warpdotdev.gpg
+if curl -fsSL --retry 3 https://releases.warp.dev/linux/keys/warp.asc | gpg --dearmor > /etc/apt/keyrings/warpdotdev.gpg; then
     chmod 644 /etc/apt/keyrings/warpdotdev.gpg
-    rm -f /tmp/warp.asc
     echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/warpdotdev.gpg] https://releases.warp.dev/linux/deb stable main" \
         > /etc/apt/sources.list.d/warpdotdev.list
     echo "Warp Terminal repository configured."
+else
+    echo "ERROR: Failed to download Warp GPG key. Skipping Warp repo."
+    rm -f /etc/apt/keyrings/warpdotdev.gpg
 fi
 
 #Add Mozilla Team PPA (Firefox and Thunderbird — not Snap)
@@ -222,13 +218,8 @@ fi
 
 #Add AnyDesk apt repository
 
-wget -q --tries=3 -O /tmp/anydesk.asc https://keys.anydesk.com/repos/DEB-GPG-KEY
-if [ ! -s /tmp/anydesk.asc ]; then
-    echo "ERROR: Failed to download AnyDesk GPG key. Skipping AnyDesk repo."
-else
-    gpg --dearmor < /tmp/anydesk.asc > /etc/apt/keyrings/anydesk.gpg
+if curl -fsSL --retry 3 https://keys.anydesk.com/repos/DEB-GPG-KEY | gpg --dearmor > /etc/apt/keyrings/anydesk.gpg; then
     chmod 644 /etc/apt/keyrings/anydesk.gpg
-    rm -f /tmp/anydesk.asc
     tee /etc/apt/sources.list.d/anydesk.sources > /dev/null << 'ADEOF'
 Types: deb
 URIs: https://deb.anydesk.com
@@ -237,6 +228,9 @@ Components: main
 Signed-By: /etc/apt/keyrings/anydesk.gpg
 ADEOF
     echo "AnyDesk repository configured."
+else
+    echo "ERROR: Failed to download AnyDesk GPG key. Skipping AnyDesk repo."
+    rm -f /etc/apt/keyrings/anydesk.gpg
 fi
 
 #Add PostgreSQL apt repository (repo only — server not installed)
@@ -661,15 +655,18 @@ if ! fwupdmgr refresh --force; then
 fi
 
 # Check for available updates
-UPDATES=$(fwupdmgr get-updates 2>&1)
-if echo "$UPDATES" | grep -q "No upgrades"; then
-    echo "No firmware updates available — continuing."
-else
+fwupdmgr get-updates 2>&1
+FWUPD_EXIT=$?
+if [ $FWUPD_EXIT -eq 0 ]; then
     echo "Firmware updates found. Applying..."
     fwupdmgr update -y --no-reboot-check
     echo ""
     echo "Firmware updates staged. The system may reboot into firmware update"
     echo "mode before booting into the OS — this is normal."
+elif [ $FWUPD_EXIT -eq 2 ]; then
+    echo "No firmware updates available — continuing."
+else
+    echo "WARNING: Unexpected error checking firmware updates (exit code $FWUPD_EXIT)."
 fi
 
 reboot
