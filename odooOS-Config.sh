@@ -8,6 +8,10 @@ if [[ $USER != "root" ]]; then
     exit 0
 fi
 
+# Log all output to file in script directory (stdout + stderr)
+exec > >(tee -a "$SCRIPT_DIR/odooOS-Config.log") 2>&1
+echo "=== Script started: $(date) ==="
+
 #Set Display name to Employee Name
 
 echo "What is the Employee's First name?" 
@@ -664,18 +668,15 @@ if ! fwupdmgr refresh --force; then
 fi
 
 # Check for available updates
-fwupdmgr get-updates 2>&1
-FWUPD_EXIT=$?
-if [ $FWUPD_EXIT -eq 0 ]; then
+UPDATES=$(fwupdmgr get-updates 2>&1)
+if echo "$UPDATES" | grep -q "No upgrades"; then
+    echo "No firmware updates available — continuing."
+else
     echo "Firmware updates found. Applying..."
     fwupdmgr update -y --no-reboot-check
     echo ""
     echo "Firmware updates staged. The system may reboot into firmware update"
     echo "mode before booting into the OS — this is normal."
-elif [ $FWUPD_EXIT -eq 2 ]; then
-    echo "No firmware updates available — continuing."
-else
-    echo "WARNING: Unexpected error checking firmware updates (exit code $FWUPD_EXIT)."
 fi
 
 reboot
