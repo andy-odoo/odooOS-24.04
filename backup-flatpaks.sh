@@ -2,11 +2,11 @@
 
 rm -rf ./flatpaks/.ostree
 
-# Filter out extra-data apps — they cannot be distributed offline
+# Filter out extra-data apps — they cannot be distributed offline by design
 apps=()
 while IFS= read -r app; do
-    if flatpak info --show-metadata "$app" 2>/dev/null | grep -q "^extra-data"; then
-        echo "Skipping extra-data app: $app"
+    if flatpak info --show-metadata "$app" 2>/dev/null | grep -q "^\[Extra Data\]"; then
+        echo "Skipping extra-data app (cannot be distributed offline): $app"
     else
         apps+=("$app")
     fi
@@ -17,4 +17,5 @@ if [ ${#apps[@]} -eq 0 ]; then
     exit 0
 fi
 
+echo "Backing up ${#apps[@]} apps..."
 flatpak create-usb --allow-partial ./flatpaks "${apps[@]}"
