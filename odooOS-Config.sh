@@ -327,6 +327,23 @@ apt update && apt --fix-broken install -y && apt upgrade -y && apt autoremove -y
 
 while IFS= read -r f; do apt install -y "$f"; done < ./deb_install.txt
 
+#Sync apt cache back to SSD (done immediately after installs before anything clears the cache)
+
+mkdir -p "$SSD_APT_CACHE" 2>/dev/null
+if [ -d "$SSD_APT_CACHE" ]; then
+    CACHE_COUNT=$(ls /var/cache/apt/archives/*.deb 2>/dev/null | wc -l)
+    echo "Syncing apt cache to SSD ($CACHE_COUNT files)..."
+    if [ "$CACHE_COUNT" -gt 0 ]; then
+        cp /var/cache/apt/archives/*.deb "$SSD_APT_CACHE"/ && \
+            echo "apt cache synced to SSD." || \
+            echo "WARNING: Failed to sync apt cache to SSD."
+    else
+        echo "No .deb files in apt cache to sync."
+    fi
+else
+    echo "WARNING: Could not create apt cache directory on SSD — skipping cache sync."
+fi
+
 #Install ELAN fingerprint driver (ThinkPad E16 Gen 1 only)
 
 PRODUCT_VERSION_FP=$(cat /sys/class/dmi/id/product_version 2>/dev/null)
@@ -643,23 +660,6 @@ rm -f /etc/xdg/autostart/anydesk.desktop \
        /home/odoo/.config/autostart/anydesk.desktop \
        /home/odoo/.config/autostart/rustdesk.desktop
 echo "AnyDesk and RustDesk autostart disabled."
-
-#Sync apt cache back to SSD
-
-mkdir -p "$SSD_APT_CACHE" 2>/dev/null
-if [ -d "$SSD_APT_CACHE" ]; then
-    CACHE_COUNT=$(ls /var/cache/apt/archives/*.deb 2>/dev/null | wc -l)
-    echo "Syncing apt cache to SSD ($CACHE_COUNT files)..."
-    if [ "$CACHE_COUNT" -gt 0 ]; then
-        cp /var/cache/apt/archives/*.deb "$SSD_APT_CACHE"/ && \
-            echo "apt cache synced to SSD." || \
-            echo "WARNING: Failed to sync apt cache to SSD."
-    else
-        echo "No .deb files in apt cache to sync."
-    fi
-else
-    echo "WARNING: Could not create apt cache directory on SSD — skipping cache sync."
-fi
 
 #Remove gnome keyrings for user odoo
 
