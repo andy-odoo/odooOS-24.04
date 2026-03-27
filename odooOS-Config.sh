@@ -310,10 +310,13 @@ rm -rf /etc/opt/chrome/
 #Restore apt cache from SSD if available
 
 echo "apt cache directory: $SSD_APT_CACHE"
-if [ -d "$SSD_APT_CACHE" ] && [ -n "$(ls -A "$SSD_APT_CACHE"/*.deb 2>/dev/null)" ]; then
+DEB_COUNT=$(ls "$SSD_APT_CACHE"/*.deb 2>/dev/null | wc -l)
+echo "SSD apt cache: $DEB_COUNT .deb files found"
+if [ -d "$SSD_APT_CACHE" ] && [ "$DEB_COUNT" -gt 0 ]; then
     echo "Restoring apt cache from SSD..."
-    cp "$SSD_APT_CACHE"/*.deb /var/cache/apt/archives/ 2>/dev/null || true
-    echo "apt cache restored."
+    cp "$SSD_APT_CACHE"/*.deb /var/cache/apt/archives/ && \
+        echo "apt cache restored ($DEB_COUNT files)." || \
+        echo "WARNING: apt cache restore failed — packages will be downloaded."
 else
     echo "No SSD apt cache found — packages will be downloaded."
 fi
@@ -643,12 +646,19 @@ echo "AnyDesk and RustDesk autostart disabled."
 
 #Sync apt cache back to SSD
 
-if [ -d "$SSD_APT_CACHE" ] || mkdir -p "$SSD_APT_CACHE" 2>/dev/null; then
-    echo "Syncing apt cache to SSD..."
-    cp /var/cache/apt/archives/*.deb "$SSD_APT_CACHE"/ 2>/dev/null || true
-    apt-get autoclean --dry-run 2>/dev/null | grep ^Del | awk '{print $2}' | \
-        xargs -I{} rm -f "$SSD_APT_CACHE"/{}*.deb 2>/dev/null || true
-    echo "apt cache synced to SSD."
+mkdir -p "$SSD_APT_CACHE" 2>/dev/null
+if [ -d "$SSD_APT_CACHE" ]; then
+    CACHE_COUNT=$(ls /var/cache/apt/archives/*.deb 2>/dev/null | wc -l)
+    echo "Syncing apt cache to SSD ($CACHE_COUNT files)..."
+    if [ "$CACHE_COUNT" -gt 0 ]; then
+        cp /var/cache/apt/archives/*.deb "$SSD_APT_CACHE"/ && \
+            echo "apt cache synced to SSD." || \
+            echo "WARNING: Failed to sync apt cache to SSD."
+    else
+        echo "No .deb files in apt cache to sync."
+    fi
+else
+    echo "WARNING: Could not create apt cache directory on SSD — skipping cache sync."
 fi
 
 #Remove gnome keyrings for user odoo
@@ -660,23 +670,21 @@ echo "Checking for firmware and BIOS updates..."
 
 # Refresh metadata from LVFS — abort if unreachable
 echo "Refreshing firmware metadata from LVFS..."
-if ! fwupdmgr refresh --force; then
-    echo ""
-    echo "ERROR: Could not reach LVFS to check for firmware updates."
-    echo "Please verify network connectivity and re-run the script."
+REFRESH_OUT=$(fwupdmgr refresh --force 2>&1)
+echo "$REFRESH_OUT"
+if echo "$REFRESH_OUT" | grep -qi "could not"; then
+    echo "ERROR: Could not reach LVFS. Please check network and re-run."
     exit 1
 fi
 
-# Check for available updates
-UPDATES=$(fwupdmgr get-updates 2>&1)
-if echo "$UPDATES" | grep -q "No upgrades"; then
-    echo "No firmware updates available — continuing."
+# Skip update if this hardware has no fwupd-supported devices
+SUPPORTED=$(echo "$REFRESH_OUT" | grep -oP '\d+(?= local devices supported)' | head -1)
+if [ "${SUPPORTED:-0}" -eq 0 ]; then
+    echo "No fwupd-supported devices on this hardware — skipping firmware update."
 else
-    echo "Firmware updates found. Applying..."
+    echo "Applying firmware updates ($SUPPORTED devices supported)..."
     fwupdmgr update -y --no-reboot-check
-    echo ""
-    echo "Firmware updates staged. The system may reboot into firmware update"
-    echo "mode before booting into the OS — this is normal."
+    echo "Firmware update check complete."
 fi
 
 reboot
