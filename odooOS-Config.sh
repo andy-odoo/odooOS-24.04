@@ -1,7 +1,10 @@
 #!/bin/bash
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SSD_APT_CACHE="$SCRIPT_DIR/apt-cache"
+
 if [[ $USER != "root" ]]; then
-    sudo "$0"
+    sudo SCRIPT_DIR="$SCRIPT_DIR" SSD_APT_CACHE="$SSD_APT_CACHE" bash "$SCRIPT_DIR/$(basename "$0")"
     exit 0
 fi
 
@@ -138,7 +141,9 @@ rm -f /etc/apt/keyrings/packages.mozilla.org.asc \
 
 #Add VSCode apt repository
 
-if curl -fsSL --retry 3 https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > /usr/share/keyrings/microsoft.gpg; then
+if curl -fsSL --retry 3 -o /tmp/microsoft.asc https://packages.microsoft.com/keys/microsoft.asc && \
+   gpg --dearmor < /tmp/microsoft.asc > /usr/share/keyrings/microsoft.gpg; then
+    rm -f /tmp/microsoft.asc
     chmod 644 /usr/share/keyrings/microsoft.gpg
     tee /etc/apt/sources.list.d/vscode.sources > /dev/null << 'VSEOF'
 Types: deb
@@ -150,8 +155,8 @@ Signed-By: /usr/share/keyrings/microsoft.gpg
 VSEOF
     echo "VSCode repository configured."
 else
-    echo "ERROR: Failed to download Microsoft GPG key. Skipping VSCode repo."
-    rm -f /usr/share/keyrings/microsoft.gpg
+    rm -f /tmp/microsoft.asc /usr/share/keyrings/microsoft.gpg
+    echo "ERROR: Failed to download or dearmor Microsoft GPG key. Skipping VSCode repo."
 fi
 
 #Add Warp Terminal apt repository
@@ -160,14 +165,16 @@ fi
 rm -f /etc/apt/sources.list.d/warpdotdev.sources \
        /etc/apt/trusted.gpg.d/warpdotdev.gpg
 
-if curl -fsSL --retry 3 https://releases.warp.dev/linux/keys/warp.asc | gpg --dearmor > /etc/apt/keyrings/warpdotdev.gpg; then
+if curl -fsSL --retry 3 -o /tmp/warp.asc https://releases.warp.dev/linux/keys/warp.asc && \
+   gpg --dearmor < /tmp/warp.asc > /etc/apt/keyrings/warpdotdev.gpg; then
+    rm -f /tmp/warp.asc
     chmod 644 /etc/apt/keyrings/warpdotdev.gpg
     echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/warpdotdev.gpg] https://releases.warp.dev/linux/deb stable main" \
         > /etc/apt/sources.list.d/warpdotdev.list
     echo "Warp Terminal repository configured."
 else
-    echo "ERROR: Failed to download Warp GPG key. Skipping Warp repo."
-    rm -f /etc/apt/keyrings/warpdotdev.gpg
+    rm -f /tmp/warp.asc /etc/apt/keyrings/warpdotdev.gpg
+    echo "ERROR: Failed to download or dearmor Warp GPG key. Skipping Warp repo."
 fi
 
 #Add Mozilla Team PPA (Firefox and Thunderbird — not Snap)
@@ -218,7 +225,9 @@ fi
 
 #Add AnyDesk apt repository
 
-if curl -fsSL --retry 3 https://keys.anydesk.com/repos/DEB-GPG-KEY | gpg --dearmor > /etc/apt/keyrings/anydesk.gpg; then
+if curl -fsSL --retry 3 -o /tmp/anydesk.asc https://keys.anydesk.com/repos/DEB-GPG-KEY && \
+   gpg --dearmor < /tmp/anydesk.asc > /etc/apt/keyrings/anydesk.gpg; then
+    rm -f /tmp/anydesk.asc
     chmod 644 /etc/apt/keyrings/anydesk.gpg
     tee /etc/apt/sources.list.d/anydesk.sources > /dev/null << 'ADEOF'
 Types: deb
@@ -229,8 +238,8 @@ Signed-By: /etc/apt/keyrings/anydesk.gpg
 ADEOF
     echo "AnyDesk repository configured."
 else
-    echo "ERROR: Failed to download AnyDesk GPG key. Skipping AnyDesk repo."
-    rm -f /etc/apt/keyrings/anydesk.gpg
+    rm -f /tmp/anydesk.asc /etc/apt/keyrings/anydesk.gpg
+    echo "ERROR: Failed to download or dearmor AnyDesk GPG key. Skipping AnyDesk repo."
 fi
 
 #Add PostgreSQL apt repository (repo only — server not installed)
@@ -296,7 +305,7 @@ rm -rf /etc/opt/chrome/
 
 #Restore apt cache from SSD if available
 
-SSD_APT_CACHE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/apt-cache"
+echo "apt cache directory: $SSD_APT_CACHE"
 if [ -d "$SSD_APT_CACHE" ] && [ -n "$(ls -A "$SSD_APT_CACHE"/*.deb 2>/dev/null)" ]; then
     echo "Restoring apt cache from SSD..."
     cp "$SSD_APT_CACHE"/*.deb /var/cache/apt/archives/ 2>/dev/null || true
