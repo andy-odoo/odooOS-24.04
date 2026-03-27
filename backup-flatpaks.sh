@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [ ! -d ./flatpaks ]; then
+    echo "flatpaks directory not found — creating it..."
+    mkdir ./flatpaks
+fi
+
 rm -rf ./flatpaks/.ostree
 
 # Filter out extra-data apps — they cannot be distributed offline by design
