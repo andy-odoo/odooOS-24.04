@@ -347,6 +347,9 @@ else
     echo "WARNING: Could not create apt cache directory on SSD — skipping cache sync."
 fi
 
+# Remove keep-packages setting so normal apt behavior resumes on this machine
+rm -f /etc/apt/apt.conf.d/01keep-debs
+
 #Install ELAN fingerprint driver (ThinkPad E16 Gen 1 only)
 
 PRODUCT_VERSION_FP=$(cat /sys/class/dmi/id/product_version 2>/dev/null)
