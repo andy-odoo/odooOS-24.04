@@ -324,7 +324,8 @@ fi
 #Install deb packages
 
 # Keep downloaded .deb files in cache after install so they can be synced to SSD
-echo 'APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/01keep-debs
+# Binary::apt:: prefix is required — plain APT:: does not apply to the apt binary
+echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/01keep-debs
 
 apt update && apt --fix-broken install -y && apt upgrade -y && apt autoremove -y
 
