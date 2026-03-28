@@ -352,8 +352,8 @@ rm -f /etc/apt/apt.conf.d/01keep-debs
 
 #Install ELAN fingerprint driver (ThinkPad E16 Gen 1 only)
 
-PRODUCT_VERSION_FP=$(cat /sys/class/dmi/id/product_version 2>/dev/null)
-if echo "$PRODUCT_VERSION_FP" | grep -qE "21JT|21JU"; then
+PRODUCT_VERSION_FP=$(cat /sys/class/dmi/id/product_name 2>/dev/null)
+if echo "$PRODUCT_VERSION_FP" | grep -qE "^21JT|^21JU"; then
     echo "ThinkPad E16 Gen 1 AMD (21JT/21JU) detected. Installing ELAN fingerprint driver..."
     add-apt-repository -y ppa:libfprint-tod1-group/ppa
     apt update -qq
