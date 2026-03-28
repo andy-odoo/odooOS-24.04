@@ -335,6 +335,10 @@ while IFS= read -r f; do apt install -y "$f"; done < ./deb_install.txt
 
 mkdir -p "$SSD_APT_CACHE" 2>/dev/null
 if [ -d "$SSD_APT_CACHE" ]; then
+    # Remove outdated versions from SSD cache first, then clean local cache
+    apt-get autoclean --dry-run 2>/dev/null | grep ^Del | awk '{print $2}' | \
+        xargs -I{} find "$SSD_APT_CACHE" -name "{}*.deb" -delete 2>/dev/null || true
+    apt-get autoclean -y
     CACHE_COUNT=$(ls /var/cache/apt/archives/*.deb 2>/dev/null | wc -l)
     echo "Syncing apt cache to SSD ($CACHE_COUNT files)..."
     if [ "$CACHE_COUNT" -gt 0 ]; then
