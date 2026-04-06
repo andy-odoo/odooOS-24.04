@@ -640,6 +640,30 @@ cat > /usr/share/gnome-background-properties/odoo-wallpapers.xml << XMLEOF
     <pcolor>#000000</pcolor>
     <scolor>#000000</scolor>
   </wallpaper>
+  <wallpaper deleted="false">
+    <name>Earth 1</name>
+    <filename>/usr/share/backgrounds/odoo/odoo-wallpaper-earth-1.jpg</filename>
+    <options>zoom</options>
+    <shade_type>solid</shade_type>
+    <pcolor>#000000</pcolor>
+    <scolor>#000000</scolor>
+  </wallpaper>
+  <wallpaper deleted="false">
+    <name>Earth 2</name>
+    <filename>/usr/share/backgrounds/odoo/odoo-wallpaper-earth-2.jpg</filename>
+    <options>zoom</options>
+    <shade_type>solid</shade_type>
+    <pcolor>#000000</pcolor>
+    <scolor>#000000</scolor>
+  </wallpaper>
+  <wallpaper deleted="false">
+    <name>Earth 3</name>
+    <filename>/usr/share/backgrounds/odoo/odoo-wallpaper-earth-3.jpg</filename>
+    <options>zoom</options>
+    <shade_type>solid</shade_type>
+    <pcolor>#000000</pcolor>
+    <scolor>#000000</scolor>
+  </wallpaper>
 </wallpapers>
 XMLEOF
 chmod 644 /usr/share/gnome-background-properties/odoo-wallpapers.xml
