@@ -355,17 +355,26 @@ fi
 # Remove keep-packages setting so normal apt behavior resumes on this machine
 rm -f /etc/apt/apt.conf.d/01keep-debs
 
-#Install ELAN fingerprint driver (ThinkPad E16 Gen 1 only)
+#Install fingerprint driver (ThinkPad E16 Gen 1 only)
 
 PRODUCT_VERSION_FP=$(cat /sys/class/dmi/id/product_name 2>/dev/null)
 if echo "$PRODUCT_VERSION_FP" | grep -qE "^21JT|^21JU"; then
-    echo "ThinkPad E16 Gen 1 AMD (21JT/21JU) detected. Installing ELAN fingerprint driver..."
+    echo "ThinkPad E16 Gen 1 AMD (21JT/21JU) detected. Detecting fingerprint sensor..."
     add-apt-repository -y ppa:libfprint-tod1-group/ppa
     apt update -qq
-    apt install -y libfprint-2-tod1-elan
-    echo "ELAN fingerprint driver installed."
+    if lsusb | grep -q "10a5:9800"; then
+        echo "FPC sensor (10a5:9800) detected. Installing FPC fingerprint driver..."
+        apt install -y libfprint-2-tod1-fpc
+        echo "FPC fingerprint driver installed."
+    elif lsusb | grep -q "04f3:0c4b"; then
+        echo "ELAN sensor (04f3:0c4b) detected. Installing ELAN fingerprint driver..."
+        apt install -y libfprint-2-tod1-elan
+        echo "ELAN fingerprint driver installed."
+    else
+        echo "No known fingerprint sensor detected. Skipping fingerprint driver."
+    fi
 else
-    echo "Model is '$PRODUCT_VERSION_FP' - not a ThinkPad E16 Gen 1. Skipping ELAN driver."
+    echo "Model is '$PRODUCT_VERSION_FP' - not a ThinkPad E16 Gen 1. Skipping fingerprint driver."
 fi
 
 
