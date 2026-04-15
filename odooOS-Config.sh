@@ -559,6 +559,35 @@ EOF
 chown odoo:odoo /home/odoo/.local/share/applications/chrome-mohkbeamcbmbidacpegilbjjclnbnaml-Default.desktop
 echo "Dialpad desktop entry created."
 
+#Launch Chrome on a virtual display to trigger WebAppInstallForceList and download PWA icons
+
+apt-get install -y --no-install-recommends xvfb
+echo "Launching Chrome on virtual display to pre-download PWA icons..."
+
+sudo -u odoo bash << 'CHROMEEOF'
+export HOME=/home/odoo
+Xvfb :99 -screen 0 1280x800x24 -nolisten tcp &
+XVFB_PID=$!
+sleep 2
+DISPLAY=:99 /opt/google/chrome/google-chrome \
+    --no-first-run \
+    --no-default-browser-check \
+    --disable-sync \
+    about:blank &
+CHROME_PID=$!
+sleep 45
+kill $CHROME_PID 2>/dev/null
+wait $CHROME_PID 2>/dev/null
+kill $XVFB_PID 2>/dev/null
+wait $XVFB_PID 2>/dev/null
+CHROMEEOF
+
+chown -R odoo:odoo /home/odoo/.config/google-chrome 2>/dev/null || true
+chown -R odoo:odoo /home/odoo/.local/share/icons 2>/dev/null || true
+gtk-update-icon-cache -f /home/odoo/.local/share/icons/hicolor 2>/dev/null || true
+update-desktop-database /home/odoo/.local/share/applications 2>/dev/null || true
+echo "PWA icons pre-downloaded."
+
 #Set Icon Arrangement and settings
 
 sudo -u odoo bash -c 'dconf load / < odoo-gnome-arrangement.txt'
