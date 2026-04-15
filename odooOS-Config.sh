@@ -307,6 +307,22 @@ rm -rf /home/odoo/.local/share/google-chrome
 rm -rf /etc/default/google-chrome
 rm -rf /etc/opt/chrome/
 
+#Configure Chrome Enterprise policies — force-install PWAs on first launch
+
+mkdir -p /etc/opt/chrome/policies/managed
+cat > /etc/opt/chrome/policies/managed/webapps.json << 'EOF'
+{
+  "WebAppInstallForceList": [
+    {
+      "url": "https://web.whatsapp.com",
+      "default_launch_container": "window",
+      "create_desktop_shortcut": true
+    }
+  ]
+}
+EOF
+echo "Chrome PWA policy written."
+
 #Restore apt cache from SSD if available
 
 echo "apt cache directory: $SSD_APT_CACHE"
@@ -411,6 +427,10 @@ else
     echo "RustDesk v${RUSTDESK_VERSION} installed."
 fi
 
+#Remove pre-installed Flatpaks not needed in this deployment
+
+flatpak uninstall -y com.ktechpit.whatsie 2>/dev/null || true
+
 #Install flatpaks from USB Drive
 
 flatpak remote-modify --collection-id=org.flathub.Stable flathub
@@ -443,6 +463,75 @@ else
     sudo -u odoo bash -c 'gnome-extensions enable x11gestures@joseexposito.github.io'
     echo "x11-gestures extension installed and enabled."
 fi
+
+#Pre-create WhatsApp Web PWA desktop entry so dock icon works before Chrome's first run
+
+mkdir -p /home/odoo/.local/share/applications
+cat > /home/odoo/.local/share/applications/chrome-hnpfjngllnobngcgfapefoaidbinmjnm-Default.desktop << 'EOF'
+[Desktop Entry]
+Version=1.0
+Terminal=false
+Type=Application
+Name=WhatsApp Web
+Exec=/opt/google/chrome/google-chrome --profile-directory=Default --app-id=hnpfjngllnobngcgfapefoaidbinmjnm
+Icon=chrome-hnpfjngllnobngcgfapefoaidbinmjnm-Default
+StartupWMClass=crx_hnpfjngllnobngcgfapefoaidbinmjnm
+EOF
+chown odoo:odoo /home/odoo/.local/share/applications/chrome-hnpfjngllnobngcgfapefoaidbinmjnm-Default.desktop
+echo "WhatsApp Web desktop entry created."
+
+cat > /home/odoo/.local/share/applications/chrome-aghbiahbpaijignceidepookljebhfak-Default.desktop << 'EOF'
+[Desktop Entry]
+Version=1.0
+Terminal=false
+Type=Application
+Name=Google Drive
+Exec=/opt/google/chrome/google-chrome --profile-directory=Default --app-id=aghbiahbpaijignceidepookljebhfak
+Icon=chrome-aghbiahbpaijignceidepookljebhfak-Default
+StartupWMClass=crx_aghbiahbpaijignceidepookljebhfak
+EOF
+chown odoo:odoo /home/odoo/.local/share/applications/chrome-aghbiahbpaijignceidepookljebhfak-Default.desktop
+echo "Google Drive desktop entry created."
+
+cat > /home/odoo/.local/share/applications/chrome-eilembjdkfgodjkcjnpgpaenohkicgjd-Default.desktop << 'EOF'
+[Desktop Entry]
+Version=1.0
+Terminal=false
+Type=Application
+Name=Google Keep
+Exec=/opt/google/chrome/google-chrome --profile-directory=Default --app-id=eilembjdkfgodjkcjnpgpaenohkicgjd
+Icon=chrome-eilembjdkfgodjkcjnpgpaenohkicgjd-Default
+StartupWMClass=crx_eilembjdkfgodjkcjnpgpaenohkicgjd
+EOF
+chown odoo:odoo /home/odoo/.local/share/applications/chrome-eilembjdkfgodjkcjnpgpaenohkicgjd-Default.desktop
+echo "Google Keep desktop entry created."
+
+cat > /home/odoo/.local/share/applications/chrome-kjgfgldnnfoeklkmfkjfagphfepbbdan-Default.desktop << 'EOF'
+[Desktop Entry]
+Version=1.0
+Terminal=false
+Type=Application
+Name=Google Meet
+Exec=/opt/google/chrome/google-chrome --profile-directory=Default --app-id=kjgfgldnnfoeklkmfkjfagphfepbbdan
+Icon=chrome-kjgfgldnnfoeklkmfkjfagphfepbbdan-Default
+StartupWMClass=crx_kjgfgldnnfoeklkmfkjfagphfepbbdan
+EOF
+chown odoo:odoo /home/odoo/.local/share/applications/chrome-kjgfgldnnfoeklkmfkjfagphfepbbdan-Default.desktop
+echo "Google Meet desktop entry created."
+
+cat > /home/odoo/.local/share/applications/chrome-mohkbeamcbmbidacpegilbjjclnbnaml-Default.desktop << 'EOF'
+[Desktop Entry]
+Version=1.0
+Terminal=false
+Type=Application
+Name=Dialpad
+MimeType=x-scheme-handler/tel;x-scheme-handler/web+dialpad;x-scheme-handler/google-chrome;
+Exec=/opt/google/chrome/google-chrome --profile-directory=Default --app-id=mohkbeamcbmbidacpegilbjjclnbnaml %U
+Icon=chrome-mohkbeamcbmbidacpegilbjjclnbnaml-Default
+StartupWMClass=crx_mohkbeamcbmbidacpegilbjjclnbnaml
+EOF
+chown odoo:odoo /home/odoo/.local/share/applications/chrome-mohkbeamcbmbidacpegilbjjclnbnaml-Default.desktop
+echo "Dialpad desktop entry created."
 
 #Set Icon Arrangement and settings
 
