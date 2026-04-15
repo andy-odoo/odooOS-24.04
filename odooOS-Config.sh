@@ -317,6 +317,26 @@ cat > /etc/opt/chrome/policies/managed/webapps.json << 'EOF'
       "url": "https://web.whatsapp.com",
       "default_launch_container": "window",
       "create_desktop_shortcut": true
+    },
+    {
+      "url": "https://drive.google.com",
+      "default_launch_container": "window",
+      "create_desktop_shortcut": true
+    },
+    {
+      "url": "https://keep.google.com",
+      "default_launch_container": "window",
+      "create_desktop_shortcut": true
+    },
+    {
+      "url": "https://meet.google.com",
+      "default_launch_container": "window",
+      "create_desktop_shortcut": true
+    },
+    {
+      "url": "https://dialpad.com",
+      "default_launch_container": "window",
+      "create_desktop_shortcut": true
     }
   ]
 }
