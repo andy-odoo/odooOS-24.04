@@ -313,6 +313,17 @@ CHROMIUM_FLAGS="--password-store=basic"
 EOF
 echo "Chrome password store set to basic."
 
+#Override Chrome desktop entry so --password-store=basic is embedded directly in the Exec line
+#/etc/default/google-chrome is only used by Chrome for apt repo management, not for passing flags
+
+if [ -f /usr/share/applications/google-chrome.desktop ]; then
+    sed -E 's|(Exec=/usr/bin/google-chrome[^ ]*)|\1 --password-store=basic|g' \
+        /usr/share/applications/google-chrome.desktop \
+        > /home/odoo/.local/share/applications/google-chrome.desktop
+    chown odoo:odoo /home/odoo/.local/share/applications/google-chrome.desktop
+    echo "Chrome desktop override created with --password-store=basic."
+fi
+
 #Configure Chrome Enterprise policies — force-install PWAs on first launch
 
 mkdir -p /etc/opt/chrome/policies/managed
@@ -559,34 +570,55 @@ EOF
 chown odoo:odoo /home/odoo/.local/share/applications/chrome-mohkbeamcbmbidacpegilbjjclnbnaml-Default.desktop
 echo "Dialpad desktop entry created."
 
-#Launch Chrome on a virtual display to trigger WebAppInstallForceList and download PWA icons
+#Download PWA icons directly from each app's web manifest
+#The Xvfb/WebAppInstallForceList approach fails silently for Google apps without a signed-in account
 
-apt-get install -y --no-install-recommends xvfb
-echo "Launching Chrome on virtual display to pre-download PWA icons..."
+echo "Downloading PWA icons from web app manifests..."
+mkdir -p /home/odoo/.local/share/icons/hicolor/128x128/apps
 
-sudo -u odoo bash << 'CHROMEEOF'
-export HOME=/home/odoo
-Xvfb :99 -screen 0 1280x800x24 -nolisten tcp &
-XVFB_PID=$!
-sleep 2
-DISPLAY=:99 /opt/google/chrome/google-chrome \
-    --no-first-run \
-    --no-default-browser-check \
-    --disable-sync \
-    about:blank &
-CHROME_PID=$!
-sleep 45
-kill $CHROME_PID 2>/dev/null
-wait $CHROME_PID 2>/dev/null
-kill $XVFB_PID 2>/dev/null
-wait $XVFB_PID 2>/dev/null
-CHROMEEOF
+download_pwa_icon() {
+    local app_id="$1"
+    local manifest_url="$2"
+    local icon_out="/home/odoo/.local/share/icons/hicolor/128x128/apps/chrome-${app_id}-Default.png"
+    local ua="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/124.0.0.0 Safari/537.36"
 
-chown -R odoo:odoo /home/odoo/.config/google-chrome 2>/dev/null || true
-chown -R odoo:odoo /home/odoo/.local/share/icons 2>/dev/null || true
+    local manifest
+    manifest=$(curl -sL --max-time 15 -H "User-Agent: $ua" "$manifest_url" 2>/dev/null)
+    [ -z "$manifest" ] && echo "  Could not fetch manifest: $manifest_url" && return 1
+
+    local icon_url
+    icon_url=$(echo "$manifest" | python3 -c "
+import json, sys, urllib.parse
+base = sys.argv[1]
+try:
+    m = json.load(sys.stdin)
+    icons = [i for i in m.get('icons', []) if 'src' in i]
+    def sz(i):
+        try: return int(i.get('sizes','0x0').split()[0].split('x')[0])
+        except: return 0
+    icons.sort(key=sz, reverse=True)
+    if icons: print(urllib.parse.urljoin(base, icons[0]['src']))
+except: pass
+" "$manifest_url" 2>/dev/null)
+
+    [ -z "$icon_url" ] && echo "  No icon found in manifest: $manifest_url" && return 1
+
+    curl -sL --max-time 15 -H "User-Agent: $ua" "$icon_url" -o "$icon_out" 2>/dev/null
+    [ -s "$icon_out" ] \
+        && echo "  Downloaded icon for $app_id" \
+        || echo "  Failed to download icon for $app_id"
+}
+
+download_pwa_icon "hnpfjngllnobngcgfapefoaidbinmjnm" "https://web.whatsapp.com/manifest.json"
+download_pwa_icon "aghbiahbpaijignceidepookljebhfak" "https://drive.google.com/manifest.json"
+download_pwa_icon "eilembjdkfgodjkcjnpgpaenohkicgjd" "https://keep.google.com/manifest.json"
+download_pwa_icon "kjgfgldnnfoeklkmfkjfagphfepbbdan" "https://meet.google.com/manifest.json"
+download_pwa_icon "mohkbeamcbmbidacpegilbjjclnbnaml" "https://dialpad.com/manifest.json"
+
+chown -R odoo:odoo /home/odoo/.local/share/icons
 gtk-update-icon-cache -f /home/odoo/.local/share/icons/hicolor 2>/dev/null || true
 update-desktop-database /home/odoo/.local/share/applications 2>/dev/null || true
-echo "PWA icons pre-downloaded."
+echo "PWA icon download complete."
 
 #Set Icon Arrangement and settings
 
