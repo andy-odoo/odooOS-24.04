@@ -304,8 +304,14 @@ add-apt-repository -y ppa:obsproject/obs-studio
 rm -rf /home/odoo/.config/google-chrome
 rm -rf /home/odoo/.cache/google-chrome
 rm -rf /home/odoo/.local/share/google-chrome
-rm -rf /etc/default/google-chrome
 rm -rf /etc/opt/chrome/
+
+#Configure Chrome to use basic (unencrypted) password store — bypasses GNOME keyring prompt on first launch
+
+cat > /etc/default/google-chrome << 'EOF'
+CHROMIUM_FLAGS="--password-store=basic"
+EOF
+echo "Chrome password store set to basic."
 
 #Configure Chrome Enterprise policies — force-install PWAs on first launch
 
