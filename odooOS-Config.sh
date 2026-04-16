@@ -570,38 +570,17 @@ EOF
 chown odoo:odoo /home/odoo/.local/share/applications/chrome-mohkbeamcbmbidacpegilbjjclnbnaml-Default.desktop
 echo "Dialpad desktop entry created."
 
-#Download PWA icons directly from each app's web manifest
-#The Xvfb/WebAppInstallForceList approach fails silently for Google apps without a signed-in account
+#Download PWA icons from known stable CDN URLs
+#Manifest-scraping is unreliable: these apps return HTML (not JSON) to curl requests
 
-echo "Downloading PWA icons from web app manifests..."
+echo "Downloading PWA icons..."
 mkdir -p /home/odoo/.local/share/icons/hicolor/128x128/apps
 
 download_pwa_icon() {
     local app_id="$1"
-    local manifest_url="$2"
+    local icon_url="$2"
     local icon_out="/home/odoo/.local/share/icons/hicolor/128x128/apps/chrome-${app_id}-Default.png"
-    local ua="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/124.0.0.0 Safari/537.36"
-
-    local manifest
-    manifest=$(curl -sL --max-time 15 -H "User-Agent: $ua" "$manifest_url" 2>/dev/null)
-    [ -z "$manifest" ] && echo "  Could not fetch manifest: $manifest_url" && return 1
-
-    local icon_url
-    icon_url=$(echo "$manifest" | python3 -c "
-import json, sys, urllib.parse
-base = sys.argv[1]
-try:
-    m = json.load(sys.stdin)
-    icons = [i for i in m.get('icons', []) if 'src' in i]
-    def sz(i):
-        try: return int(i.get('sizes','0x0').split()[0].split('x')[0])
-        except: return 0
-    icons.sort(key=sz, reverse=True)
-    if icons: print(urllib.parse.urljoin(base, icons[0]['src']))
-except: pass
-" "$manifest_url" 2>/dev/null)
-
-    [ -z "$icon_url" ] && echo "  No icon found in manifest: $manifest_url" && return 1
+    local ua="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
 
     curl -sL --max-time 15 -H "User-Agent: $ua" "$icon_url" -o "$icon_out" 2>/dev/null
     [ -s "$icon_out" ] \
@@ -609,11 +588,21 @@ except: pass
         || echo "  Failed to download icon for $app_id"
 }
 
-download_pwa_icon "hnpfjngllnobngcgfapefoaidbinmjnm" "https://web.whatsapp.com/manifest.json"
-download_pwa_icon "aghbiahbpaijignceidepookljebhfak" "https://drive.google.com/manifest.json"
-download_pwa_icon "eilembjdkfgodjkcjnpgpaenohkicgjd" "https://keep.google.com/manifest.json"
-download_pwa_icon "kjgfgldnnfoeklkmfkjfagphfepbbdan" "https://meet.google.com/manifest.json"
-download_pwa_icon "mohkbeamcbmbidacpegilbjjclnbnaml" "https://dialpad.com/manifest.json"
+# WhatsApp — Google Favicon API (reliable, no static hash in URL)
+download_pwa_icon "hnpfjngllnobngcgfapefoaidbinmjnm" \
+    "https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://web.whatsapp.com&size=128"
+# Google Drive — versioned product logo from gstatic.com
+download_pwa_icon "aghbiahbpaijignceidepookljebhfak" \
+    "https://fonts.gstatic.com/s/i/productlogos/drive_2020q4/v2/web-512dp/logo_drive_2020q4_color_2x_web_512dp.png"
+# Google Keep — versioned product logo from gstatic.com
+download_pwa_icon "eilembjdkfgodjkcjnpgpaenohkicgjd" \
+    "https://fonts.gstatic.com/s/i/productlogos/keep_2020q4/v1/web-512dp/logo_keep_2020q4_color_2x_web_512dp.png"
+# Google Meet — versioned product logo from gstatic.com
+download_pwa_icon "kjgfgldnnfoeklkmfkjfagphfepbbdan" \
+    "https://fonts.gstatic.com/s/i/productlogos/meet_2020q4/v1/web-512dp/logo_meet_2020q4_color_2x_web_512dp.png"
+# Dialpad — Google Favicon API
+download_pwa_icon "mohkbeamcbmbidacpegilbjjclnbnaml" \
+    "https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://dialpad.com&size=128"
 
 chown -R odoo:odoo /home/odoo/.local/share/icons
 gtk-update-icon-cache -f /home/odoo/.local/share/icons/hicolor 2>/dev/null || true
