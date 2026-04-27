@@ -336,21 +336,6 @@ cat > /etc/opt/chrome/policies/managed/webapps.json << 'EOF'
       "create_desktop_shortcut": false
     },
     {
-      "url": "https://drive.google.com",
-      "default_launch_container": "window",
-      "create_desktop_shortcut": false
-    },
-    {
-      "url": "https://keep.google.com",
-      "default_launch_container": "window",
-      "create_desktop_shortcut": false
-    },
-    {
-      "url": "https://meet.google.com",
-      "default_launch_container": "window",
-      "create_desktop_shortcut": false
-    },
-    {
       "url": "https://dialpad.com",
       "default_launch_container": "window",
       "create_desktop_shortcut": false
@@ -436,6 +421,11 @@ fi
 npm install -g @google/gemini-cli
 echo "Google Gemini CLI installed."
 
+#Install Claude Code
+
+npm install -g @anthropic-ai/claude-code
+echo "Claude Code installed."
+
 #Balena Etcher (download latest release directly from GitHub)
 
 ETCHER_VERSION=$(curl -s https://api.github.com/repos/balena-io/etcher/releases/latest | grep -oP '"tag_name": "\K[^"]+' | tr -d 'v')
@@ -517,45 +507,6 @@ EOF
 chown odoo:odoo /home/odoo/.local/share/applications/chrome-hnpfjngllnobngcgfapefoaidbinmjnm-Default.desktop
 echo "WhatsApp Web desktop entry created."
 
-cat > /home/odoo/.local/share/applications/chrome-aghbiahbpaijignceidepookljebhfak-Default.desktop << 'EOF'
-[Desktop Entry]
-Version=1.0
-Terminal=false
-Type=Application
-Name=Google Drive
-Exec=/opt/google/chrome/google-chrome --profile-directory=Default --app-id=aghbiahbpaijignceidepookljebhfak
-Icon=chrome-aghbiahbpaijignceidepookljebhfak-Default
-StartupWMClass=crx_aghbiahbpaijignceidepookljebhfak
-EOF
-chown odoo:odoo /home/odoo/.local/share/applications/chrome-aghbiahbpaijignceidepookljebhfak-Default.desktop
-echo "Google Drive desktop entry created."
-
-cat > /home/odoo/.local/share/applications/chrome-eilembjdkfgodjkcjnpgpaenohkicgjd-Default.desktop << 'EOF'
-[Desktop Entry]
-Version=1.0
-Terminal=false
-Type=Application
-Name=Google Keep
-Exec=/opt/google/chrome/google-chrome --profile-directory=Default --app-id=eilembjdkfgodjkcjnpgpaenohkicgjd
-Icon=chrome-eilembjdkfgodjkcjnpgpaenohkicgjd-Default
-StartupWMClass=crx_eilembjdkfgodjkcjnpgpaenohkicgjd
-EOF
-chown odoo:odoo /home/odoo/.local/share/applications/chrome-eilembjdkfgodjkcjnpgpaenohkicgjd-Default.desktop
-echo "Google Keep desktop entry created."
-
-cat > /home/odoo/.local/share/applications/chrome-kjgfgldnnfoeklkmfkjfagphfepbbdan-Default.desktop << 'EOF'
-[Desktop Entry]
-Version=1.0
-Terminal=false
-Type=Application
-Name=Google Meet
-Exec=/opt/google/chrome/google-chrome --profile-directory=Default --app-id=kjgfgldnnfoeklkmfkjfagphfepbbdan
-Icon=chrome-kjgfgldnnfoeklkmfkjfagphfepbbdan-Default
-StartupWMClass=crx_kjgfgldnnfoeklkmfkjfagphfepbbdan
-EOF
-chown odoo:odoo /home/odoo/.local/share/applications/chrome-kjgfgldnnfoeklkmfkjfagphfepbbdan-Default.desktop
-echo "Google Meet desktop entry created."
-
 cat > /home/odoo/.local/share/applications/chrome-mohkbeamcbmbidacpegilbjjclnbnaml-Default.desktop << 'EOF'
 [Desktop Entry]
 Version=1.0
@@ -591,15 +542,6 @@ download_pwa_icon() {
 # WhatsApp — Google Favicon API (reliable, no static hash in URL)
 download_pwa_icon "hnpfjngllnobngcgfapefoaidbinmjnm" \
     "https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://web.whatsapp.com&size=128"
-# Google Drive — versioned product logo from gstatic.com
-download_pwa_icon "aghbiahbpaijignceidepookljebhfak" \
-    "https://fonts.gstatic.com/s/i/productlogos/drive_2020q4/v2/web-512dp/logo_drive_2020q4_color_2x_web_512dp.png"
-# Google Keep — versioned product logo from gstatic.com
-download_pwa_icon "eilembjdkfgodjkcjnpgpaenohkicgjd" \
-    "https://fonts.gstatic.com/s/i/productlogos/keep_2020q4/v1/web-512dp/logo_keep_2020q4_color_2x_web_512dp.png"
-# Google Meet — versioned product logo from gstatic.com
-download_pwa_icon "kjgfgldnnfoeklkmfkjfagphfepbbdan" \
-    "https://fonts.gstatic.com/s/i/productlogos/meet_2020q4/v1/web-512dp/logo_meet_2020q4_color_2x_web_512dp.png"
 # Dialpad — Google Favicon API
 download_pwa_icon "mohkbeamcbmbidacpegilbjjclnbnaml" \
     "https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://dialpad.com&size=128"
