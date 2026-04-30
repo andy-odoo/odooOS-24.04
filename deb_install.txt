@@ -38,3 +38,4 @@ thunderbird
 pgadmin4
 neovim
 nodejs
+sqlitebrowser

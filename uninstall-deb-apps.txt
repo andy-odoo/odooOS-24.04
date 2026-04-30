@@ -6,3 +6,7 @@ libreoffice*
 gnome-shell-extension-manager
 gnome-shell-extension-prefs
 xmind-vana
+mc
+xournal
+ibus-mozc
+mozc-utils-gui
