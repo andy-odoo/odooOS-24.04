@@ -16,7 +16,6 @@ obs-studio
 darktable
 transmission-gtk
 simple-scan
-warp-terminal
 code
 libreoffice
 remmina

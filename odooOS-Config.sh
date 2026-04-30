@@ -163,23 +163,6 @@ else
     echo "ERROR: Failed to download or dearmor Microsoft GPG key. Skipping VSCode repo."
 fi
 
-#Add Warp Terminal apt repository
-
-# Remove legacy formats from prior runs to avoid Signed-By conflicts
-rm -f /etc/apt/sources.list.d/warpdotdev.sources \
-       /etc/apt/trusted.gpg.d/warpdotdev.gpg
-
-if curl -fsSL --retry 3 -o /tmp/warp.asc https://releases.warp.dev/linux/keys/warp.asc && \
-   gpg --dearmor < /tmp/warp.asc > /etc/apt/keyrings/warpdotdev.gpg; then
-    rm -f /tmp/warp.asc
-    chmod 644 /etc/apt/keyrings/warpdotdev.gpg
-    echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/warpdotdev.gpg] https://releases.warp.dev/linux/deb stable main" \
-        > /etc/apt/sources.list.d/warpdotdev.list
-    echo "Warp Terminal repository configured."
-else
-    rm -f /tmp/warp.asc /etc/apt/keyrings/warpdotdev.gpg
-    echo "ERROR: Failed to download or dearmor Warp GPG key. Skipping Warp repo."
-fi
 
 #Add Mozilla Team PPA (Firefox and Thunderbird — not Snap)
 
