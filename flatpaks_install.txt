@@ -1,4 +1,5 @@
 app.drey.Dialect
+com.github.dail8859.NotepadNext
 com.bitwarden.desktop
 com.calibre_ebook.calibre
 com.github.tchx84.Flatseal
