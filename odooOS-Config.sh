@@ -548,8 +548,9 @@ sudo -u odoo xdg-mime default org.gnome.TextEditor.desktop text/plain
 
 #Set Wallpapers — system-wide default for all users
 
-# Remove default Ubuntu wallpapers
+# Remove default Ubuntu wallpapers and any user-saved backgrounds
 rm -rf /usr/share/backgrounds/*
+rm -f /home/odoo/.local/share/backgrounds/*
 rm -f /usr/share/gnome-background-properties/ubuntu-wallpapers.xml
 
 mkdir -p /usr/share/backgrounds/odoo/
