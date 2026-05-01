@@ -66,7 +66,7 @@ apps=['sol.desktop', 'org.gnome.Mahjongg.desktop', 'org.gnome.Sudoku.desktop', '
 name='Games'
 
 [org/gnome/desktop/app-folders/folders/8b635fab-22f7-4457-9846-3c6abc8c7998]
-apps=['libreoffice-writer.desktop', 'libreoffice-calc.desktop', 'libreoffice-impress.desktop', 'libreoffice-draw.desktop', 'libreoffice-math.desktop', 'libreoffice-base.desktop', 'libreoffice-startcenter.desktop', 'net.scribus.Scribus.desktop', 'net.cozic.joplin_desktop.desktop', 'net.xmind.XMind.desktop', 'org.kde.okular.desktop', 'md.obsidian.Obsidian.desktop', 'com.calibre_ebook.calibre.desktop', 'com.calibre_ebook.calibre.ebook-viewer.desktop', 'com.calibre_ebook.calibre.ebook-edit.desktop', 'com.calibre_ebook.calibre.lrfviewer.desktop']
+apps=['libreoffice-writer.desktop', 'libreoffice-calc.desktop', 'libreoffice-impress.desktop', 'libreoffice-draw.desktop', 'libreoffice-math.desktop', 'libreoffice-base.desktop', 'libreoffice-startcenter.desktop', 'net.scribus.Scribus.desktop', 'net.cozic.joplin_desktop.desktop', 'net.xmind.XMind.desktop', 'org.kde.okular.desktop', 'com.github.jeromerobert.pdfarranger.desktop', 'md.obsidian.Obsidian.desktop', 'com.calibre_ebook.calibre.desktop', 'com.calibre_ebook.calibre.ebook-viewer.desktop', 'com.calibre_ebook.calibre.ebook-edit.desktop', 'com.calibre_ebook.calibre.lrfviewer.desktop']
 name='Office'
 
 [org/gnome/desktop/app-folders/folders/Pardus]
