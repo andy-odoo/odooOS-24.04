@@ -143,6 +143,9 @@ rm -f /etc/apt/sources.list.d/mozilla.list
 rm -f /etc/apt/keyrings/packages.mozilla.org.asc \
        /etc/apt/trusted.gpg.d/packages.mozilla.org.gpg
 
+add-apt-repository --remove -y ppa:bamboo-engine/ibus-bamboo 2>/dev/null || true
+add-apt-repository --remove -y ppa:thierry-f/fork-michael-gruz 2>/dev/null || true
+
 #Add VSCode apt repository
 
 if curl -fsSL --retry 3 -o /tmp/microsoft.asc https://packages.microsoft.com/keys/microsoft.asc && \
@@ -319,7 +322,7 @@ cat > /etc/opt/chrome/policies/managed/webapps.json << 'EOF'
       "create_desktop_shortcut": false
     },
     {
-      "url": "https://dialpad.com",
+      "url": "https://dialpad.com/app",
       "default_launch_container": "window",
       "create_desktop_shortcut": false
     }
@@ -775,6 +778,14 @@ cat > /usr/share/gnome-background-properties/odoo-wallpapers.xml << XMLEOF
   <wallpaper deleted="false">
     <name>Earth 3</name>
     <filename>/usr/share/backgrounds/odoo/odoo-wallpaper-earth-3.jpg</filename>
+    <options>zoom</options>
+    <shade_type>solid</shade_type>
+    <pcolor>#000000</pcolor>
+    <scolor>#000000</scolor>
+  </wallpaper>
+  <wallpaper deleted="false">
+    <name>Red Rose</name>
+    <filename>/usr/share/backgrounds/odoo/odoo-wallpaper-red-rose.jpg</filename>
     <options>zoom</options>
     <shade_type>solid</shade_type>
     <pcolor>#000000</pcolor>
