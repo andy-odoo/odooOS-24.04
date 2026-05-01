@@ -637,6 +637,14 @@ cat > /usr/share/gnome-background-properties/odoo-wallpapers.xml << XMLEOF
     <scolor>#000000</scolor>
   </wallpaper>
   <wallpaper deleted="false">
+    <name>Bryce Canyon</name>
+    <filename>/usr/share/backgrounds/odoo/odoo-wallpaper-bryce-canyon.jpg</filename>
+    <options>zoom</options>
+    <shade_type>solid</shade_type>
+    <pcolor>#000000</pcolor>
+    <scolor>#000000</scolor>
+  </wallpaper>
+  <wallpaper deleted="false">
     <name>Rainbow Falls</name>
     <filename>/usr/share/backgrounds/odoo/odoo-wallpaper-rainbow-falls.jpg</filename>
     <options>zoom</options>
