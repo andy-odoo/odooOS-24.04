@@ -10,6 +10,7 @@ net.nokyan.Resources
 net.scribus.Scribus
 net.xmind.XMind
 org.gimp.GIMP
+io.gitlab.adhami3310.Converter
 org.gnome.Decibels
 org.gnome.Papers
 org.gnome.Showtime
