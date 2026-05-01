@@ -143,8 +143,8 @@ rm -f /etc/apt/sources.list.d/mozilla.list
 rm -f /etc/apt/keyrings/packages.mozilla.org.asc \
        /etc/apt/trusted.gpg.d/packages.mozilla.org.gpg
 
-add-apt-repository --remove -y ppa:bamboo-engine/ibus-bamboo 2>/dev/null || true
-add-apt-repository --remove -y ppa:thierry-f/fork-michael-gruz 2>/dev/null || true
+rm -f /etc/apt/sources.list.d/bamboo-engine-ubuntu-ibus-bamboo-noble.sources
+rm -f /etc/apt/sources.list.d/thierry-f-ubuntu-fork-michael-gruz-noble.sources
 
 #Add VSCode apt repository
 
