@@ -97,13 +97,6 @@ for pkg in "${UNINSTALL_PACKAGES[@]}"; do
     apt remove -y "$pkg" 2>/dev/null || true
 done
 
-#Remove old or invalid deb repos
-
-rm -rf /etc/apt/sources.list.d/*.save
-rm -f /etc/apt/sources.list.d/mozilla.list
-rm -f /etc/apt/keyrings/packages.mozilla.org.asc \
-       /etc/apt/trusted.gpg.d/packages.mozilla.org.gpg
-
 #Get OS codename for repo configuration
 
 . /etc/os-release
