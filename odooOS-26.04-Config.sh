@@ -69,14 +69,6 @@ fi
 
 echo 'Acquire::ForceIPv4 "true";' > /etc/apt/apt.conf.d/99force-ipv4
 
-#Change updates mirror
-
-sed -i -e s,http://be.archive.ubuntu.com/ubuntu/,http://us.archive.ubuntu.com/ubuntu/,g /etc/apt/sources.list.d/ubuntu.sources
-
-#Remove Canon Drivers
-
-dpkg -P cnrdrvcups-ufr2-uk
-
 #Remove PostgreSQL (base image ships a full install — not needed on workstations)
 
 apt purge -y postgresql* libpq-dev 2>/dev/null || true
