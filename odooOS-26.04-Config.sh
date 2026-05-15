@@ -69,12 +69,6 @@ fi
 
 echo 'Acquire::ForceIPv4 "true";' > /etc/apt/apt.conf.d/99force-ipv4
 
-#Remove PostgreSQL (base image ships a full install — not needed on workstations)
-
-apt purge -y postgresql* libpq-dev 2>/dev/null || true
-rm -f /etc/apt/sources.list.d/pgdg.list
-rm -f /etc/apt/trusted.gpg.d/postgresql*
-
 #Stop packagekitd and unattended-upgrades
 
 systemctl stop packagekit.service
