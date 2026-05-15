@@ -412,10 +412,6 @@ else
     echo "Balena Etcher v${ETCHER_VERSION} installed."
 fi
 
-#Remove pre-installed Flatpaks not needed in this deployment
-
-flatpak uninstall -y com.ktechpit.whatsie 2>/dev/null || true
-
 #Install flatpaks from USB Drive
 
 FLATPAK_PACKAGES=(
