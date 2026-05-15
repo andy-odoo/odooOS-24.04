@@ -47,7 +47,7 @@ backend='google'
 prompt-check='2026-03-25T00:16:33.743665Z'
 
 [org/gnome/desktop/app-folders]
-folder-children=['Utilities', 'YaST', 'Pardus', 'edfd0215-8cac-4c64-b0bc-29d76bf26b7e', '8b635fab-22f7-4457-9846-3c6abc8c7998', '5d44aacd-b163-48e7-83a2-276ee3353c2c', '88032d08-d2ac-498e-9cb9-0410b56ba00c', '24a95fbc-1e10-4041-b1fe-2c03acb41194', '835fe221-1e4b-49cd-8d84-5aa4b8349ec4']
+folder-children=['Utilities', 'edfd0215-8cac-4c64-b0bc-29d76bf26b7e', '8b635fab-22f7-4457-9846-3c6abc8c7998', '5d44aacd-b163-48e7-83a2-276ee3353c2c', '88032d08-d2ac-498e-9cb9-0410b56ba00c', '24a95fbc-1e10-4041-b1fe-2c03acb41194', '835fe221-1e4b-49cd-8d84-5aa4b8349ec4']
 
 [org/gnome/desktop/app-folders/folders/24a95fbc-1e10-4041-b1fe-2c03acb41194]
 apps=['org.gimp.GIMP.desktop', 'org.darktable.darktable.desktop', 'org.inkscape.Inkscape.desktop', 'com.github.PintaProject.Pinta.desktop', 'io.gitlab.adhami3310.Converter.desktop', 'org.gnome.gThumb.desktop']
@@ -69,21 +69,12 @@ name='Games'
 apps=['libreoffice-writer.desktop', 'libreoffice-calc.desktop', 'libreoffice-impress.desktop', 'libreoffice-draw.desktop', 'libreoffice-math.desktop', 'libreoffice-base.desktop', 'libreoffice-startcenter.desktop', 'net.scribus.Scribus.desktop', 'net.cozic.joplin_desktop.desktop', 'net.xmind.XMind.desktop', 'org.kde.okular.desktop', 'com.github.jeromerobert.pdfarranger.desktop', 'md.obsidian.Obsidian.desktop', 'com.calibre_ebook.calibre.desktop', 'com.calibre_ebook.calibre.ebook-viewer.desktop', 'com.calibre_ebook.calibre.ebook-edit.desktop', 'com.calibre_ebook.calibre.lrfviewer.desktop']
 name='Office'
 
-[org/gnome/desktop/app-folders/folders/Pardus]
-categories=['X-Pardus-Apps']
-name='X-Pardus-Apps.directory'
-translate=true
-
 [org/gnome/desktop/app-folders/folders/Utilities]
 apps=['nm-connection-editor.desktop', 'org.gnome.baobab.desktop', 'org.gnome.DiskUtility.desktop', 'org.gnome.Evince.desktop', 'org.gnome.Loupe.desktop', 'org.gnome.seahorse.Application.desktop', 'org.gnome.tweaks.desktop', 'org.gnome.Logs.desktop', 'org.gnome.Characters.desktop', 'org.gnome.font-viewer.desktop', 'org.gnome.DejaDup.desktop', 'com.github.joseexposito.touche.desktop']
 categories=['X-GNOME-Utilities']
 name='X-GNOME-Utilities.directory'
 translate=true
 
-[org/gnome/desktop/app-folders/folders/YaST]
-categories=['X-SuSE-YaST']
-name='suse-yast.directory'
-translate=true
 
 [org/gnome/desktop/app-folders/folders/edfd0215-8cac-4c64-b0bc-29d76bf26b7e]
 apps=['firefox.desktop', 'thunderbird.desktop', 'brave-browser.desktop', 'org.ferdium.Ferdium.desktop', 'org.telegram.desktop.desktop', 'us.zoom.Zoom.desktop', 'transmission-gtk.desktop']
