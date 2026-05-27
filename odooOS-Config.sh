@@ -848,7 +848,7 @@ if echo "$REFRESH_OUT" | grep -qi "could not"; then
 fi
 
 # Skip update if this hardware has no fwupd-supported devices
-SUPPORTED=$(echo "$REFRESH_OUT" | grep -oP '\d+(?= local devices supported)' | head -1)
+SUPPORTED=$(echo "$REFRESH_OUT" | grep -oP '\d+(?= local devices? supported)' | head -1)
 if [ "${SUPPORTED:-0}" -eq 0 ]; then
     echo "No fwupd-supported devices on this hardware — skipping firmware update."
 else
