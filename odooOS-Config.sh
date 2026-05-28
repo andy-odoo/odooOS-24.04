@@ -846,9 +846,12 @@ if echo "$REFRESH_OUT" | grep -qi "could not"; then
     echo "ERROR: Could not reach LVFS. Please check network and re-run."
     exit 1
 fi
+if echo "$REFRESH_OUT" | grep -qi "failed to update metadata"; then
+    echo "WARNING: Metadata refresh failed (timestamp issue) — proceeding with cached metadata."
+fi
 
-# Skip update if this hardware has no fwupd-supported devices
-SUPPORTED=$(echo "$REFRESH_OUT" | grep -oP '\d+(?= local devices? supported)' | head -1)
+# Detect supported devices independently of refresh output
+SUPPORTED=$(fwupdmgr get-devices 2>/dev/null | grep -c "DeviceId:" || true)
 if [ "${SUPPORTED:-0}" -eq 0 ]; then
     echo "No fwupd-supported devices on this hardware — skipping firmware update."
 else
