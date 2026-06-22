@@ -394,6 +394,10 @@ if echo "$PRODUCT_VERSION_FP" | grep -qE "^21JT|^21JU"; then
         echo "ELAN sensor (04f3:0c4b) detected. Installing ELAN fingerprint driver..."
         apt install -y libfprint-2-tod1-elan
         echo "ELAN fingerprint driver installed."
+    elif lsusb | grep -q "27c6:550a"; then
+        echo "Goodix sensor (27c6:550a) detected. Installing Goodix fingerprint driver..."
+        apt install -y libfprint-2-tod1-goodix
+        echo "Goodix fingerprint driver installed."
     else
         echo "No known fingerprint sensor detected. Skipping fingerprint driver."
     fi
