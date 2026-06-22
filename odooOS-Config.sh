@@ -803,6 +803,14 @@ cat > /usr/share/gnome-background-properties/odoo-wallpapers.xml << XMLEOF
     <pcolor>#000000</pcolor>
     <scolor>#000000</scolor>
   </wallpaper>
+  <wallpaper deleted="false">
+    <name>odoo Glories</name>
+    <filename>/usr/share/backgrounds/odoo/odoo-wallpaper-glories.jpg</filename>
+    <options>zoom</options>
+    <shade_type>solid</shade_type>
+    <pcolor>#000000</pcolor>
+    <scolor>#000000</scolor>
+  </wallpaper>
 </wallpapers>
 XMLEOF
 chmod 644 /usr/share/gnome-background-properties/odoo-wallpapers.xml
