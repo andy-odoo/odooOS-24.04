@@ -10,3 +10,5 @@ mc
 xournal
 ibus-mozc
 mozc-utils-gui
+anydesk
+rustdesk
