@@ -213,24 +213,6 @@ else
     fi
 fi
 
-#Add AnyDesk apt repository
-
-if curl -fsSL --retry 3 -o /tmp/anydesk.asc https://keys.anydesk.com/repos/DEB-GPG-KEY && \
-   gpg --dearmor < /tmp/anydesk.asc > /etc/apt/keyrings/anydesk.gpg; then
-    rm -f /tmp/anydesk.asc
-    chmod 644 /etc/apt/keyrings/anydesk.gpg
-    tee /etc/apt/sources.list.d/anydesk.sources > /dev/null << 'ADEOF'
-Types: deb
-URIs: https://deb.anydesk.com
-Suites: all
-Components: main
-Signed-By: /etc/apt/keyrings/anydesk.gpg
-ADEOF
-    echo "AnyDesk repository configured."
-else
-    rm -f /tmp/anydesk.asc /etc/apt/keyrings/anydesk.gpg
-    echo "ERROR: Failed to download or dearmor AnyDesk GPG key. Skipping AnyDesk repo."
-fi
 
 #Add PostgreSQL apt repository (repo only — server not installed)
 
@@ -384,19 +366,21 @@ rm -f /etc/apt/apt.conf.d/01keep-debs
 PRODUCT_VERSION_FP=$(cat /sys/class/dmi/id/product_name 2>/dev/null)
 if echo "$PRODUCT_VERSION_FP" | grep -qE "^21JT|^21JU"; then
     echo "ThinkPad E16 Gen 1 AMD (21JT/21JU) detected. Detecting fingerprint sensor..."
-    add-apt-repository -y ppa:libfprint-tod1-group/ppa
-    apt update -qq
     if lsusb | grep -q "10a5:9800"; then
         echo "FPC sensor (10a5:9800) detected. Installing FPC fingerprint driver..."
+        add-apt-repository -y ppa:libfprint-tod1-group/ppa
+        apt update -qq
         apt install -y libfprint-2-tod1-fpc
         echo "FPC fingerprint driver installed."
     elif lsusb | grep -q "04f3:0c4b"; then
         echo "ELAN sensor (04f3:0c4b) detected. Installing ELAN fingerprint driver..."
+        add-apt-repository -y ppa:libfprint-tod1-group/ppa
+        apt update -qq
         apt install -y libfprint-2-tod1-elan
         echo "ELAN fingerprint driver installed."
     elif lsusb | grep -q "27c6:550a"; then
-        echo "Goodix sensor (27c6:550a) detected. Installing Goodix fingerprint driver..."
-        apt install -y libfprint-2-tod1-goodix
+        echo "Goodix sensor (27c6:550a) detected. Installing Goodix fingerprint driver from Lenovo package..."
+        dpkg -i "$SCRIPT_DIR/libfprint-2-tod-goodix_amd64.deb"
         echo "Goodix fingerprint driver installed."
     else
         echo "No known fingerprint sensor detected. Skipping fingerprint driver."
@@ -430,19 +414,6 @@ else
     echo "Balena Etcher v${ETCHER_VERSION} installed."
 fi
 
-#RustDesk (download latest release directly from GitHub)
-
-RUSTDESK_VERSION=$(curl -s https://api.github.com/repos/rustdesk/rustdesk/releases/latest | grep -oP '"tag_name": "\K[^"]+' | tr -d 'v')
-
-if [ -z "$RUSTDESK_VERSION" ]; then
-    echo "WARNING: Could not determine latest RustDesk version. Skipping RustDesk install."
-else
-    echo "Installing RustDesk v${RUSTDESK_VERSION}..."
-    wget -q --tries=3 "https://github.com/rustdesk/rustdesk/releases/download/${RUSTDESK_VERSION}/rustdesk-${RUSTDESK_VERSION}-x86_64.deb"
-    apt install -y ./rustdesk-${RUSTDESK_VERSION}-x86_64.deb
-    rm -f ./rustdesk-${RUSTDESK_VERSION}-x86_64.deb
-    echo "RustDesk v${RUSTDESK_VERSION} installed."
-fi
 
 #Remove pre-installed Flatpaks not needed in this deployment
 
@@ -833,15 +804,6 @@ echo "Defaults pwfeedback" > /etc/sudoers.d/pwfeedback
 chmod 440 /etc/sudoers.d/pwfeedback
 echo "Sudo password feedback enabled."
 
-#Disable AnyDesk and RustDesk autostart (launch manually when needed)
-
-systemctl disable anydesk.service 2>/dev/null || true
-systemctl disable rustdesk.service 2>/dev/null || true
-rm -f /etc/xdg/autostart/anydesk.desktop \
-       /etc/xdg/autostart/rustdesk.desktop \
-       /home/odoo/.config/autostart/anydesk.desktop \
-       /home/odoo/.config/autostart/rustdesk.desktop
-echo "AnyDesk and RustDesk autostart disabled."
 
 #Remove gnome keyrings for user odoo
 

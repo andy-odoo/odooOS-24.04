@@ -31,7 +31,6 @@ gnome-snapshot
 gnome-sound-recorder
 shotwell
 gnome-network-displays
-anydesk
 firefox
 thunderbird
 pgadmin4
