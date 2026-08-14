@@ -21,6 +21,26 @@ read employee_gram
 
 chfn -f "$employee_first_name ($employee_gram)" odoo
 
+#Determine employee role — gates whether Software Development tools stay installed
+
+while true; do
+    echo "Is the employee's role either a Software Engineer, Technical Support, or Functional Support? (Yes/No)"
+    read -r employee_role_answer
+    case "$employee_role_answer" in
+        [Yy]|[Yy][Ee][Ss])
+            KEEP_DEV_TOOLS="yes"
+            break
+            ;;
+        [Nn]|[Nn][Oo])
+            KEEP_DEV_TOOLS="no"
+            break
+            ;;
+        *)
+            echo "Please answer Yes or No."
+            ;;
+    esac
+done
+
 export DEBIAN_FRONTEND=noninteractive
 
 #Block kernel 6.17 on ThinkPad L14 Gen 6 only (known freeze issue)
@@ -315,6 +335,16 @@ echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/
 apt update && apt --fix-broken install -y && apt upgrade -y && apt autoremove -y
 
 while IFS= read -r f; do apt install -y "$f"; done < ./deb_install.txt
+
+#Remove Software Development tools not needed for this employee's role
+#codium/geany/vim-gtk3 ship on the base image; pgadmin4/sqlitebrowser/neovim are installed above —
+#either way, purge is a no-op if the package isn't present
+
+if [ "$KEEP_DEV_TOOLS" = "no" ]; then
+    echo "Removing Software Development tools (role does not require them)..."
+    apt purge -y codium geany vim-gtk3 pgadmin4 sqlitebrowser neovim 2>/dev/null || true
+    echo "Software Development tools removed."
+fi
 
 #Sync apt cache back to SSD (done immediately after installs before anything clears the cache)
 
