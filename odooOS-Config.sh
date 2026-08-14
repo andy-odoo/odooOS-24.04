@@ -292,27 +292,6 @@ if [ -f /usr/share/applications/google-chrome.desktop ]; then
     echo "Chrome desktop override created with --password-store=basic."
 fi
 
-#Configure Chrome Enterprise policies — force-install PWAs on first launch
-
-mkdir -p /etc/opt/chrome/policies/managed
-cat > /etc/opt/chrome/policies/managed/webapps.json << 'EOF'
-{
-  "WebAppInstallForceList": [
-    {
-      "url": "https://web.whatsapp.com",
-      "default_launch_container": "window",
-      "create_desktop_shortcut": false
-    },
-    {
-      "url": "https://dialpad.com/app",
-      "default_launch_container": "window",
-      "create_desktop_shortcut": false
-    }
-  ]
-}
-EOF
-echo "Chrome PWA policy written."
-
 #Restore apt cache from SSD if available
 
 echo "apt cache directory: $SSD_APT_CACHE"
@@ -461,9 +440,8 @@ Version=1.0
 Terminal=false
 Type=Application
 Name=WhatsApp Web
-Exec=/opt/google/chrome/google-chrome --profile-directory=Default --app-id=hnpfjngllnobngcgfapefoaidbinmjnm
+Exec=/opt/google/chrome/google-chrome --profile-directory=Default --app=https://web.whatsapp.com
 Icon=chrome-hnpfjngllnobngcgfapefoaidbinmjnm-Default
-StartupWMClass=crx_hnpfjngllnobngcgfapefoaidbinmjnm
 EOF
 chown odoo:odoo /home/odoo/.local/share/applications/chrome-hnpfjngllnobngcgfapefoaidbinmjnm-Default.desktop
 echo "WhatsApp Web desktop entry created."
@@ -475,9 +453,8 @@ Terminal=false
 Type=Application
 Name=Dialpad
 MimeType=x-scheme-handler/tel;x-scheme-handler/web+dialpad;x-scheme-handler/google-chrome;
-Exec=/opt/google/chrome/google-chrome --profile-directory=Default --app-id=mohkbeamcbmbidacpegilbjjclnbnaml %U
+Exec=/opt/google/chrome/google-chrome --profile-directory=Default --app=https://dialpad.com/app
 Icon=chrome-mohkbeamcbmbidacpegilbjjclnbnaml-Default
-StartupWMClass=crx_mohkbeamcbmbidacpegilbjjclnbnaml
 EOF
 chown odoo:odoo /home/odoo/.local/share/applications/chrome-mohkbeamcbmbidacpegilbjjclnbnaml-Default.desktop
 echo "Dialpad desktop entry created."
