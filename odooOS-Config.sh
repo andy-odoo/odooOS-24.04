@@ -437,6 +437,37 @@ else
 fi
 
 
+#Install espanso from source (X11 build) — the packaged .deb has been unreliable;
+#pin to a specific release tag so every machine gets the same build (bump to upgrade)
+#Not started/registered here — only a subset of employees use it; they run
+#`espanso service register && espanso start` themselves when they want it.
+
+ESPANSO_VERSION="v2.4.0"
+
+apt install -y git build-essential pkg-config libx11-dev libxtst-dev libxkbcommon-dev libdbus-1-dev 'libwxgtk3.*-dev'
+
+echo "Building espanso ${ESPANSO_VERSION} from source (this can take a while)..."
+sudo -u odoo bash << EOF
+set -e
+if [ ! -x "\$HOME/.cargo/bin/cargo" ]; then
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable --profile minimal
+fi
+source "\$HOME/.cargo/env"
+rm -rf /tmp/espanso-build
+git clone --branch $ESPANSO_VERSION --depth 1 https://github.com/espanso/espanso /tmp/espanso-build
+cd /tmp/espanso-build
+cargo build --release --no-default-features --features modulo,vendored-tls
+EOF
+
+if [ -x /tmp/espanso-build/target/release/espanso ]; then
+    mv /tmp/espanso-build/target/release/espanso /usr/local/bin/espanso
+    chmod 755 /usr/local/bin/espanso
+    rm -rf /tmp/espanso-build
+    echo "espanso ${ESPANSO_VERSION} installed from source to /usr/local/bin/espanso."
+else
+    echo "ERROR: espanso build failed — binary not found at target/release/espanso. Skipping install."
+fi
+
 #Remove pre-installed Flatpaks not needed in this deployment
 
 flatpak uninstall -y com.ktechpit.whatsie 2>/dev/null || true
