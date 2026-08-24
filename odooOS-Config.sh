@@ -312,6 +312,18 @@ if [ -f /usr/share/applications/google-chrome.desktop ]; then
     echo "Chrome desktop override created with --password-store=basic."
 fi
 
+#Fix Chrome's com.google.Chrome.desktop — upstream ships this with NoDisplay=true
+#misplaced under a [Desktop Action] block instead of [Desktop Entry], so it fails to
+#hide and shows as a second, unclaimed dock icon alongside google-chrome.desktop
+
+CHROME_DUP_DESKTOP="/usr/share/applications/com.google.Chrome.desktop"
+if [ -f "$CHROME_DUP_DESKTOP" ]; then
+    sed -i -e '/^NoDisplay=true$/d' -e '/^StartupWMClass=google-chrome$/d' "$CHROME_DUP_DESKTOP"
+    sed -i '/^\[Desktop Entry\]/a NoDisplay=true\nStartupWMClass=google-chrome' "$CHROME_DUP_DESKTOP"
+    update-desktop-database /usr/share/applications 2>/dev/null || true
+    echo "Fixed com.google.Chrome.desktop (NoDisplay/StartupWMClass)."
+fi
+
 #Restore apt cache from SSD if available
 
 echo "apt cache directory: $SSD_APT_CACHE"
