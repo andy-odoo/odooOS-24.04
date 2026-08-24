@@ -342,7 +342,8 @@ while IFS= read -r f; do apt install -y "$f"; done < ./deb_install.txt
 
 if [ "$KEEP_DEV_TOOLS" = "no" ]; then
     echo "Removing Software Development tools (role does not require them)..."
-    apt purge -y codium geany vim-gtk3 pgadmin4 sqlitebrowser neovim 2>/dev/null || true
+    apt purge -y codium geany vim-gtk3 'pgadmin4*' sqlitebrowser neovim 2>/dev/null || true
+    apt autoremove -y
     echo "Software Development tools removed."
 fi
 
