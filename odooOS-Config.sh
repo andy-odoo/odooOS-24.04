@@ -64,6 +64,20 @@ else
     echo "Model is '$PRODUCT_VERSION' - not a ThinkPad L14 Gen 6. Skipping kernel 6.17 block."
 fi
 
+#Reset machine-id and SSH host keys (base image reuses the same IDs/keys across every deployment)
+
+echo "Regenerating machine-id..."
+truncate -s 0 /etc/machine-id
+rm -f /var/lib/dbus/machine-id
+systemd-machine-id-setup
+ln -sf /etc/machine-id /var/lib/dbus/machine-id
+
+echo "Regenerating SSH host keys..."
+rm -f /etc/ssh/ssh_host_*
+ssh-keygen -A
+systemctl restart ssh
+echo "Machine-id and SSH host keys regenerated."
+
 
 # ── Network connectivity ─────────────────────────────────────────────────
 # Skip WiFi if ethernet is already up, otherwise connect to company WiFi
