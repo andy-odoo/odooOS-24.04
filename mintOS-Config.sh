@@ -5,8 +5,11 @@ SSD_APT_CACHE="$SCRIPT_DIR/apt-cache"
 
 if [[ $USER != "root" ]]; then
     sudo SCRIPT_DIR="$SCRIPT_DIR" SSD_APT_CACHE="$SSD_APT_CACHE" bash "$SCRIPT_DIR/$(basename "$0")"
-    exit 0
+    exit $?
 fi
+
+# Relative paths below (package lists, ./flatpaks, ./wallpapers) assume the script directory
+cd "$SCRIPT_DIR" || exit 1
 
 # Log all output to file in script directory (stdout + stderr)
 exec > >(tee -a "$SCRIPT_DIR/mintOS-Config.log") 2>&1
@@ -38,6 +41,7 @@ DEB_PACKAGES=(
     neovim
     nodejs
     sqlitebrowser
+    iw
     flameshot
     google-chrome-stable
 )
@@ -257,7 +261,7 @@ echo "pgAdmin4 repository configured."
 #Add NodeSource LTS apt repository (latest Node.js/NPM)
 
 curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | \
-    gpg --dearmor -o /usr/share/keyrings/nodesource.gpg
+    gpg --batch --yes --dearmor -o /usr/share/keyrings/nodesource.gpg
 chmod 644 /usr/share/keyrings/nodesource.gpg
 echo "deb [signed-by=/usr/share/keyrings/nodesource.gpg] https://deb.nodesource.com/node_22.x nodistro main" \
     > /etc/apt/sources.list.d/nodesource.list
@@ -336,7 +340,7 @@ apt install -y "${DEB_PACKAGES[@]}"
 mkdir -p "$SSD_APT_CACHE" 2>/dev/null
 if [ -d "$SSD_APT_CACHE" ]; then
     apt-get autoclean --dry-run 2>/dev/null | grep ^Del | awk '{print $2}' | \
-        xargs -I{} find "$SSD_APT_CACHE" -name "{}*.deb" -delete 2>/dev/null || true
+        xargs -I{} find "$SSD_APT_CACHE" -name "{}_*.deb" -delete 2>/dev/null || true
     apt-get autoclean -y
     CACHE_COUNT=$(ls /var/cache/apt/archives/*.deb 2>/dev/null | wc -l)
     echo "Syncing apt cache to SSD ($CACHE_COUNT files)..."
@@ -357,7 +361,7 @@ rm -f /etc/apt/apt.conf.d/01keep-debs
 #Override Chrome desktop entry so --password-store=basic is embedded directly in the Exec line
 
 if [ -f /usr/share/applications/google-chrome.desktop ]; then
-    mkdir -p /home/odoo/.local/share/applications
+    sudo -u odoo mkdir -p /home/odoo/.local/share/applications
     sed -E 's|(Exec=/usr/bin/google-chrome[^ ]*)|\1 --password-store=basic|g' \
         /usr/share/applications/google-chrome.desktop \
         > /home/odoo/.local/share/applications/google-chrome.desktop
@@ -437,7 +441,7 @@ flatpak update -y
 
 #Pre-create WhatsApp Web PWA desktop entry so panel icon works before Chrome's first run
 
-mkdir -p /home/odoo/.local/share/applications
+sudo -u odoo mkdir -p /home/odoo/.local/share/applications
 cat > /home/odoo/.local/share/applications/chrome-hnpfjngllnobngcgfapefoaidbinmjnm-Default.desktop << 'EOF'
 [Desktop Entry]
 Version=1.0
@@ -560,6 +564,10 @@ picture-uri='file:///usr/share/backgrounds/odoo/${TIPS_LIGHT}'
 picture-uri-dark='file:///usr/share/backgrounds/odoo/${TIPS_DARK}'
 picture-options='zoom'
 
+[org/cinnamon/desktop/background]
+picture-uri='file:///usr/share/backgrounds/odoo/${TIPS_LIGHT}'
+picture-options='zoom'
+
 [org/gnome/desktop/screensaver]
 picture-uri='file:///usr/share/backgrounds/odoo/odoo-wallpaper-purple.png'
 picture-options='zoom'
@@ -571,6 +579,8 @@ dconf update
 sudo -u odoo dconf write /org/gnome/desktop/background/picture-uri "'file:///usr/share/backgrounds/odoo/${TIPS_LIGHT}'"
 sudo -u odoo dconf write /org/gnome/desktop/background/picture-uri-dark "'file:///usr/share/backgrounds/odoo/${TIPS_DARK}'"
 sudo -u odoo dconf write /org/gnome/desktop/background/picture-options "'zoom'"
+sudo -u odoo dconf write /org/cinnamon/desktop/background/picture-uri "'file:///usr/share/backgrounds/odoo/${TIPS_LIGHT}'"
+sudo -u odoo dconf write /org/cinnamon/desktop/background/picture-options "'zoom'"
 sudo -u odoo dconf write /org/gnome/desktop/screensaver/picture-uri "'file:///usr/share/backgrounds/odoo/odoo-wallpaper-purple.png'"
 sudo -u odoo dconf write /org/gnome/desktop/screensaver/picture-options "'zoom'"
 
@@ -769,6 +779,14 @@ cat > /usr/share/gnome-background-properties/odoo-wallpapers.xml << XMLEOF
   <wallpaper deleted="false">
     <name>Matterhorn</name>
     <filename>/usr/share/backgrounds/odoo/odoo-wallpaper-matterhorn.jpg</filename>
+    <options>zoom</options>
+    <shade_type>solid</shade_type>
+    <pcolor>#000000</pcolor>
+    <scolor>#000000</scolor>
+  </wallpaper>
+  <wallpaper deleted="false">
+    <name>odoo Glories</name>
+    <filename>/usr/share/backgrounds/odoo/odoo-wallpaper-glories.jpg</filename>
     <options>zoom</options>
     <shade_type>solid</shade_type>
     <pcolor>#000000</pcolor>

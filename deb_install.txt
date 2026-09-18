@@ -37,3 +37,4 @@ pgadmin4
 neovim
 nodejs
 sqlitebrowser
+iw

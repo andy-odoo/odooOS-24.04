@@ -23,10 +23,13 @@ while getopts "w:o:h" opt; do
   case $opt in
     w) WATCH="$OPTARG" ;;
     o) OUT="$OPTARG" ;;
-    h) sed -n '2,20p' "$0"; exit 0 ;;
+    h) sed -n '2,16p' "$0"; exit 0 ;;
     *) echo "try -h"; exit 1 ;;
   esac
 done
+if ! [[ "$WATCH" =~ ^[0-9]+$ ]]; then
+  echo "-w expects a whole number of seconds (got '$WATCH')"; exit 1
+fi
 
 [[ -n "$OUT" ]] && exec > >(tee "$OUT") 2>&1
 
@@ -85,7 +88,7 @@ ls -l /run/wpa_supplicant/ 2>/dev/null || \
 
 # ---------- connection profile ----------
 hr "4. CONNECTION PROFILE"
-CONN=$(nmcli -t -f NAME,TYPE connection show --active 2>/dev/null | awk -F: '$2 ~ /wireless/{print $1; exit}')
+CONN=$(nmcli -g GENERAL.CONNECTION device show "$IFACE" 2>/dev/null | head -1)
 echo "active wireless connection: ${CONN:-<none>}"
 if [[ -n "${CONN:-}" ]]; then
   sub "settings that affect band choice, roaming and power"
@@ -104,6 +107,7 @@ sub "association"
 iw dev "$IFACE" link 2>/dev/null || echo "not associated"
 sub "band"
 FREQ=$(iw dev "$IFACE" link 2>/dev/null | awk '/freq/{print $2; exit}')
+FREQ=${FREQ%%.*}   # newer iw prints "5180.0"
 if [[ -n "${FREQ:-}" ]]; then
   if   (( FREQ < 2500 )); then echo "$FREQ MHz -> 2.4 GHz"
   elif (( FREQ < 5900 )); then echo "$FREQ MHz -> 5 GHz"
@@ -136,15 +140,23 @@ iw dev "$IFACE" survey dump 2>/dev/null | awk '
 hr "7. FAST TRANSITION AND ROAMING SUPPORT"
 sub "does the current AP advertise 802.11r (FT)?"
 if [[ -n "${CONN:-}" ]]; then
-  SSID=$(nmcli -t -f 802-11-wireless.ssid connection show "$CONN" 2>/dev/null | cut -d: -f2)
-  sudo iw dev "$IFACE" scan 2>/dev/null | awk -v s="$SSID" '
-    /^BSS/ {bss=$2; ft=0; rrm=0; bt=0}
-    /SSID:/ {cur=$2}
-    /FT over/ || /Authentication suites.*FT/ || /MDE/ {if (cur==s) ft=1}
-    /RM enabled/ {if (cur==s) rrm=1}
-    /BSS Transition/ {if (cur==s) bt=1}
-    /^$/ {if (cur==s && bss!="") {printf "  %s  11r:%s  11k:%s  11v:%s\n", bss, (ft?"yes":"no"), (rrm?"yes":"no"), (bt?"yes":"no"); bss=""}}
-  ' || echo "  scan requires root; re-run with sudo for this section"
+  SSID=$(nmcli -g 802-11-wireless.ssid connection show "$CONN" 2>/dev/null)
+  # a fresh scan fails with "busy" if NetworkManager is mid-scan; fall back to cached results
+  SCAN=$(sudo iw dev "$IFACE" scan 2>/dev/null || sudo iw dev "$IFACE" scan dump 2>/dev/null)
+  if [[ -z "$SCAN" ]]; then
+    echo "  scan unavailable (needs root)"
+  else
+    # iw prints no blank line between BSS blocks, so flush on the next BSS line and at END
+    awk -v s="$SSID" '
+      function flush() { if (bss!="" && cur==s) printf "  %s  11r:%s  11k:%s  11v:%s\n", bss, (ft?"yes":"no"), (rrm?"yes":"no"), (bt?"yes":"no") }
+      /^BSS / {flush(); bss=substr($2,1,17); cur=""; ft=0; rrm=0; bt=0}
+      $1=="SSID:" {cur=$0; sub(/^[ \t]*SSID: /,"",cur)}
+      /FT over/ || /Authentication suites.*FT/ || /MDE/ || /Mobility Domain/ {ft=1}
+      /RM enabled/ {rrm=1}
+      /BSS Transition/ {bt=1}
+      END {flush()}
+    ' <<< "$SCAN"
+  fi
 else
   echo "  not associated"
 fi
@@ -161,8 +173,9 @@ if (( WATCH > 0 )); then
   echo "  scans every ~15s            -> something is driving continuous rescan"
   echo
   TMP=$(mktemp)
+  trap 'rm -f "$TMP"' EXIT
   sudo timeout "$WATCH" iw event -t > "$TMP" 2>/dev/null || true
-  STARTS=$(grep -c 'scan started' "$TMP" 2>/dev/null || echo 0)
+  STARTS=$(grep -c 'scan started' "$TMP" 2>/dev/null || true)
   echo "  scans started in ${WATCH}s: $STARTS"
   if (( STARTS > 1 )); then
     awk '/scan started/{if(p){printf "  interval: %.1f s\n", $1-p} p=$1}' "$TMP" | head -10

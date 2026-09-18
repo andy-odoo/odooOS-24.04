@@ -5,8 +5,11 @@ SSD_APT_CACHE="$SCRIPT_DIR/apt-cache"
 
 if [[ $USER != "root" ]]; then
     sudo SCRIPT_DIR="$SCRIPT_DIR" SSD_APT_CACHE="$SSD_APT_CACHE" bash "$SCRIPT_DIR/$(basename "$0")"
-    exit 0
+    exit $?
 fi
+
+# Relative paths below (package lists, ./flatpaks, ./wallpapers) assume the script directory
+cd "$SCRIPT_DIR" || exit 1
 
 # Log all output to file in script directory (stdout + stderr)
 exec > >(tee -a "$SCRIPT_DIR/odooOS-Config.log") 2>&1
@@ -145,7 +148,7 @@ dpkg -P cnrdrvcups-ufr2-uk
 
 #Remove PostgreSQL (base image ships a full install — not needed on workstations)
 
-apt purge -y postgresql* libpq-dev 2>/dev/null || true
+apt purge -y 'postgresql*' libpq-dev 2>/dev/null || true
 rm -f /etc/apt/sources.list.d/pgdg.list
 rm -f /etc/apt/trusted.gpg.d/postgresql*
 
@@ -167,7 +170,7 @@ snap remove snap-store
 
 #Uninstall deb apps
 
-while IFS= read -r f; do apt remove -y "$f"; done < ./uninstall-deb-apps.txt
+while IFS= read -r f; do apt remove -y "$f" < /dev/null; done < ./uninstall-deb-apps.txt
 
 #Remove old or invalid deb repos
 
@@ -275,7 +278,7 @@ echo "pgAdmin4 repository configured."
 
 #Add NodeSource LTS apt repository (latest Node.js/NPM)
 
-curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /usr/share/keyrings/nodesource.gpg
+curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --batch --yes --dearmor -o /usr/share/keyrings/nodesource.gpg
 chmod 644 /usr/share/keyrings/nodesource.gpg
 echo "deb [signed-by=/usr/share/keyrings/nodesource.gpg] https://deb.nodesource.com/node_22.x nodistro main" \
     > /etc/apt/sources.list.d/nodesource.list
@@ -319,6 +322,7 @@ echo "Chrome password store set to basic."
 #/etc/default/google-chrome is only used by Chrome for apt repo management, not for passing flags
 
 if [ -f /usr/share/applications/google-chrome.desktop ]; then
+    sudo -u odoo mkdir -p /home/odoo/.local/share/applications
     sed -E 's|(Exec=/usr/bin/google-chrome[^ ]*)|\1 --password-store=basic|g' \
         /usr/share/applications/google-chrome.desktop \
         > /home/odoo/.local/share/applications/google-chrome.desktop
@@ -360,7 +364,7 @@ echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/
 
 apt update && apt --fix-broken install -y && apt upgrade -y && apt autoremove -y
 
-while IFS= read -r f; do apt install -y "$f"; done < ./deb_install.txt
+while IFS= read -r f; do apt install -y "$f" < /dev/null; done < ./deb_install.txt
 
 #Remove Software Development tools not needed for this employee's role
 #codium/geany/vim-gtk3 ship on the base image; pgadmin4/sqlitebrowser/neovim are installed above —
@@ -379,7 +383,7 @@ mkdir -p "$SSD_APT_CACHE" 2>/dev/null
 if [ -d "$SSD_APT_CACHE" ]; then
     # Remove outdated versions from SSD cache first, then clean local cache
     apt-get autoclean --dry-run 2>/dev/null | grep ^Del | awk '{print $2}' | \
-        xargs -I{} find "$SSD_APT_CACHE" -name "{}*.deb" -delete 2>/dev/null || true
+        xargs -I{} find "$SSD_APT_CACHE" -name "{}_*.deb" -delete 2>/dev/null || true
     apt-get autoclean -y
     CACHE_COUNT=$(ls /var/cache/apt/archives/*.deb 2>/dev/null | wc -l)
     echo "Syncing apt cache to SSD ($CACHE_COUNT files)..."
@@ -416,7 +420,7 @@ if echo "$PRODUCT_VERSION_FP" | grep -qE "^21JT|^21JU"; then
         echo "ELAN fingerprint driver installed."
     elif lsusb | grep -q "27c6:550a"; then
         echo "Goodix sensor (27c6:550a) detected. Installing Goodix fingerprint driver from Lenovo package..."
-        dpkg -i "$SCRIPT_DIR/libfprint-2-tod-goodix_amd64.deb"
+        apt install -y "$SCRIPT_DIR/libfprint-2-tod-goodix_amd64.deb"
         echo "Goodix fingerprint driver installed."
     else
         echo "No known fingerprint sensor detected. Skipping fingerprint driver."
@@ -489,7 +493,7 @@ flatpak uninstall -y com.ktechpit.whatsie 2>/dev/null || true
 #Install flatpaks from USB Drive
 
 flatpak remote-modify --collection-id=org.flathub.Stable flathub
-while IFS= read -r f; do flatpak install --sideload-repo=./flatpaks/.ostree/repo flathub -y "$f"; done < ./flatpaks_install.txt
+while IFS= read -r f; do flatpak install --sideload-repo=./flatpaks/.ostree/repo flathub -y "$f" < /dev/null; done < ./flatpaks_install.txt
 
 #Update Flatpaks
 
@@ -521,7 +525,7 @@ fi
 
 #Pre-create WhatsApp Web PWA desktop entry so dock icon works before Chrome's first run
 
-mkdir -p /home/odoo/.local/share/applications
+sudo -u odoo mkdir -p /home/odoo/.local/share/applications
 cat > /home/odoo/.local/share/applications/chrome-hnpfjngllnobngcgfapefoaidbinmjnm-Default.desktop << 'EOF'
 [Desktop Entry]
 Version=1.0

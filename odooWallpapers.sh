@@ -2,9 +2,21 @@
 
 #Set Wallpapers — system-wide default for all users
 
+if [[ $EUID -ne 0 ]]; then
+    echo "This script must be run as root (sudo $0)."
+    exit 1
+fi
+
+# ./wallpapers is relative to the script directory
+cd "$(dirname "${BASH_SOURCE[0]}")" || exit 1
+
 read -rp "Enter the username to apply wallpaper settings to: " TARGET_USER
 if [ -z "$TARGET_USER" ]; then
     echo "No username provided. Exiting."
+    exit 1
+fi
+if ! id -u "$TARGET_USER" &>/dev/null; then
+    echo "User '$TARGET_USER' does not exist. Exiting."
     exit 1
 fi
 
@@ -249,6 +261,22 @@ cat > /usr/share/gnome-background-properties/odoo-wallpapers.xml << XMLEOF
   <wallpaper deleted="false">
     <name>Red Rose</name>
     <filename>/usr/share/backgrounds/odoo/odoo-wallpaper-red-rose.jpg</filename>
+    <options>zoom</options>
+    <shade_type>solid</shade_type>
+    <pcolor>#000000</pcolor>
+    <scolor>#000000</scolor>
+  </wallpaper>
+  <wallpaper deleted="false">
+    <name>Matterhorn</name>
+    <filename>/usr/share/backgrounds/odoo/odoo-wallpaper-matterhorn.jpg</filename>
+    <options>zoom</options>
+    <shade_type>solid</shade_type>
+    <pcolor>#000000</pcolor>
+    <scolor>#000000</scolor>
+  </wallpaper>
+  <wallpaper deleted="false">
+    <name>odoo Glories</name>
+    <filename>/usr/share/backgrounds/odoo/odoo-wallpaper-glories.jpg</filename>
     <options>zoom</options>
     <shade_type>solid</shade_type>
     <pcolor>#000000</pcolor>

@@ -5,8 +5,11 @@ SSD_APT_CACHE="$SCRIPT_DIR/apt-cache"
 
 if [[ $USER != "root" ]]; then
     sudo SCRIPT_DIR="$SCRIPT_DIR" SSD_APT_CACHE="$SSD_APT_CACHE" bash "$SCRIPT_DIR/$(basename "$0")"
-    exit 0
+    exit $?
 fi
+
+# Relative paths below (package lists, ./flatpaks, ./wallpapers) assume the script directory
+cd "$SCRIPT_DIR" || exit 1
 
 exec > >(tee -a "$SCRIPT_DIR/odooOS-26.04-Config.log") 2>&1
 echo "=== Script started: $(date) ==="
@@ -224,7 +227,7 @@ echo "pgAdmin4 repository configured (${PGADMIN_CODENAME})."
 #Add NodeSource LTS apt repository (Node.js 22)
 
 curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key \
-    | gpg --dearmor -o /usr/share/keyrings/nodesource.gpg
+    | gpg --batch --yes --dearmor -o /usr/share/keyrings/nodesource.gpg
 chmod 644 /usr/share/keyrings/nodesource.gpg
 echo "deb [signed-by=/usr/share/keyrings/nodesource.gpg] https://deb.nodesource.com/node_22.x nodistro main" \
     > /etc/apt/sources.list.d/nodesource.list
@@ -316,6 +319,7 @@ DEB_PACKAGES=(
     neovim
     nodejs
     sqlitebrowser
+    iw
     google-chrome-stable
     firefox
     thunderbird
@@ -336,6 +340,7 @@ done
 #/etc/default/google-chrome is only used by Chrome for apt repo management, not for passing flags
 
 if [ -f /usr/share/applications/google-chrome.desktop ]; then
+    sudo -u odoo mkdir -p /home/odoo/.local/share/applications
     sed -E 's|(Exec=/usr/bin/google-chrome[^ ]*)|\1 --password-store=basic|g' \
         /usr/share/applications/google-chrome.desktop \
         > /home/odoo/.local/share/applications/google-chrome.desktop
@@ -360,7 +365,7 @@ fi
 mkdir -p "$SSD_APT_CACHE" 2>/dev/null
 if [ -d "$SSD_APT_CACHE" ]; then
     apt-get autoclean --dry-run 2>/dev/null | grep ^Del | awk '{print $2}' | \
-        xargs -I{} find "$SSD_APT_CACHE" -name "{}*.deb" -delete 2>/dev/null || true
+        xargs -I{} find "$SSD_APT_CACHE" -name "{}_*.deb" -delete 2>/dev/null || true
     apt-get autoclean -y
     CACHE_COUNT=$(ls /var/cache/apt/archives/*.deb 2>/dev/null | wc -l)
     echo "Syncing apt cache to SSD ($CACHE_COUNT files)..."
@@ -451,6 +456,7 @@ FLATPAK_PACKAGES=(
     org.onlyoffice.desktopeditors
 )
 
+flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
 flatpak remote-modify --collection-id=org.flathub.Stable flathub
 for pkg in "${FLATPAK_PACKAGES[@]}"; do
     flatpak install --sideload-repo=./flatpaks/.ostree/repo flathub -y "$pkg"
@@ -460,7 +466,7 @@ flatpak update -y
 
 #Pre-create PWA desktop entries so dock icons work before Chrome's first run
 
-mkdir -p /home/odoo/.local/share/applications
+sudo -u odoo mkdir -p /home/odoo/.local/share/applications
 
 cat > /home/odoo/.local/share/applications/chrome-hnpfjngllnobngcgfapefoaidbinmjnm-Default.desktop << 'EOF'
 [Desktop Entry]
@@ -880,6 +886,14 @@ cat > /usr/share/gnome-background-properties/odoo-wallpapers.xml << XMLEOF
   <wallpaper deleted="false">
     <name>Matterhorn</name>
     <filename>/usr/share/backgrounds/odoo/odoo-wallpaper-matterhorn.jpg</filename>
+    <options>zoom</options>
+    <shade_type>solid</shade_type>
+    <pcolor>#000000</pcolor>
+    <scolor>#000000</scolor>
+  </wallpaper>
+  <wallpaper deleted="false">
+    <name>odoo Glories</name>
+    <filename>/usr/share/backgrounds/odoo/odoo-wallpaper-glories.jpg</filename>
     <options>zoom</options>
     <shade_type>solid</shade_type>
     <pcolor>#000000</pcolor>
