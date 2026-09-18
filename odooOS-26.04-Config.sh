@@ -21,6 +21,28 @@ read employee_gram
 
 chfn -f "$employee_first_name ($employee_gram)" odoo
 
+#Root password — read from root-password.txt in the script directory (untracked, never
+#committed); if the file is missing, ask for it now so the rest of the run stays unattended
+
+ROOT_PW_FILE="$SCRIPT_DIR/root-password.txt"
+if [ -s "$ROOT_PW_FILE" ]; then
+    ROOT_PASSWORD=$(head -n 1 "$ROOT_PW_FILE" | tr -d '\r')
+    echo "Root password loaded from $ROOT_PW_FILE."
+else
+    echo "No root-password.txt found in $SCRIPT_DIR."
+    while true; do
+        echo "Enter the root password to set:"
+        read -rs ROOT_PASSWORD
+        echo "Confirm the root password:"
+        read -rs ROOT_PASSWORD_CONFIRM
+        if [ -n "$ROOT_PASSWORD" ] && [ "$ROOT_PASSWORD" = "$ROOT_PASSWORD_CONFIRM" ]; then
+            break
+        fi
+        echo "Passwords were empty or did not match. Try again."
+    done
+    unset ROOT_PASSWORD_CONFIRM
+fi
+
 export DEBIAN_FRONTEND=noninteractive
 
 # ── Network connectivity ─────────────────────────────────────────────────
@@ -911,8 +933,11 @@ echo "Fingerprint authentication enabled."
 
 #Set root password
 
-echo "root:REDACTED" | chpasswd
-echo "Root password set."
+if printf 'root:%s\n' "$ROOT_PASSWORD" | chpasswd; then
+    echo "Root password set."
+else
+    echo "ERROR: Failed to set root password."
+fi
 
 #Enable sudo password feedback (show * when typing password)
 

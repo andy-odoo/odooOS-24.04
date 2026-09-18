@@ -1,0 +1,5 @@
+# Secrets and per-deployment artifacts that live next to the scripts on the SSD
+root-password.txt
+*.log
+apt-cache/
+flatpaks/
