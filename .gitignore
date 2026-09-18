@@ -3,3 +3,4 @@ root-password.txt
 *.log
 apt-cache/
 flatpaks/
+office-printers.txt

@@ -926,6 +926,69 @@ XMLEOF
 chmod 644 /usr/share/gnome-background-properties/odoo-wallpapers.xml
 echo "System wallpapers installed."
 
+# ── Office printers ──────────────────────────────────────────────────────
+# Add the office printers as permanent local queues (driverless IPP Everywhere), and tell
+# cups-browsed to ignore those same devices so they are not auto-created a second time.
+# Only these printers are filtered — DNS-SD discovery stays on, so printers on a home or
+# other network still show up automatically.
+# The list lives in office-printers.txt in the script directory (untracked, never committed):
+#   queue name (= DNS-SD service name)|IP|DNS-SD UUID|model|location
+
+OFFICE_PRINTERS_FILE="$SCRIPT_DIR/office-printers.txt"
+OFFICE_PRINTERS=()
+if [ -f "$OFFICE_PRINTERS_FILE" ]; then
+    while IFS= read -r line; do
+        line="${line%$'\r'}"
+        [[ -z "$line" || "$line" == \#* ]] && continue
+        OFFICE_PRINTERS+=("$line")
+    done < "$OFFICE_PRINTERS_FILE"
+fi
+
+if [ "${#OFFICE_PRINTERS[@]}" -eq 0 ]; then
+    echo "No printers listed in $OFFICE_PRINTERS_FILE — skipping office printer setup."
+else
+
+    echo "Configuring office printers..."
+    systemctl stop cups-browsed.service 2>/dev/null || true
+
+    # Rewrite our marked block in cups-browsed.conf so re-runs don't stack duplicate rules
+    BROWSED_CONF="/etc/cups/cups-browsed.conf"
+    if [ -f "$BROWSED_CONF" ]; then
+        sed -i '/^# BEGIN odoo office printers$/,/^# END odoo office printers$/d' "$BROWSED_CONF"
+        {
+            echo "# BEGIN odoo office printers"
+            echo "# Installed as local queues by the odooOS config script — do not auto-create them"
+            for entry in "${OFFICE_PRINTERS[@]}"; do
+                IFS='|' read -r p_name p_ip p_uuid p_model p_location <<< "$entry"
+                echo "BrowseFilter NOT EXACT service $p_name"
+                echo "BrowseFilter NOT EXACT UUID $p_uuid"
+            done
+            echo "# END odoo office printers"
+        } >> "$BROWSED_CONF"
+        echo "cups-browsed filter written for ${#OFFICE_PRINTERS[@]} office printers."
+    else
+        echo "WARNING: $BROWSED_CONF not found — cups-browsed exclusions not written."
+    fi
+
+    systemctl start cups.service 2>/dev/null || true
+    for entry in "${OFFICE_PRINTERS[@]}"; do
+        IFS='|' read -r p_name p_ip p_uuid p_model p_location <<< "$entry"
+        # Drop any existing queue of this name (e.g. one cups-browsed auto-created earlier)
+        lpadmin -x "$p_name" 2>/dev/null || true
+        # -m everywhere queries the printer, so this needs the office network; don't hang if it is unreachable
+        if timeout 90 lpadmin -p "$p_name" -E -v "ipp://${p_ip}/ipp/print" -m everywhere \
+            -D "$p_model" -L "$p_location" -o printer-is-shared=false; then
+            echo "  Added printer $p_name ($p_model, $p_location)."
+        else
+            echo "  WARNING: Could not add printer $p_name at $p_ip — skipping."
+        fi
+    done
+
+    systemctl start cups-browsed.service 2>/dev/null || true
+    echo "Office printer setup complete."
+
+fi
+
 #Enable fingerprint authentication
 
 pam-auth-update --enable fprintd
