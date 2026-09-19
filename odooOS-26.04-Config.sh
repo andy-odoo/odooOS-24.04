@@ -1008,6 +1008,35 @@ echo "Defaults pwfeedback" > /etc/sudoers.d/pwfeedback
 chmod 440 /etc/sudoers.d/pwfeedback
 echo "Sudo password feedback enabled."
 
+#Set iwd roaming thresholds in /etc/iwd/main.conf, keeping any other settings already there
+
+IWD_CONF=/etc/iwd/main.conf
+mkdir -p /etc/iwd
+touch "$IWD_CONF"
+sed -i -E '/^[[:space:]]*(RoamThreshold|RoamThreshold5G|RoamRetryInterval)[[:space:]]*=/d' "$IWD_CONF"
+grep -q '^\[General\]' "$IWD_CONF" || printf '\n[General]\n' >> "$IWD_CONF"
+sed -i '0,/^\[General\]/s//[General]\nRoamThreshold=-65\nRoamThreshold5G=-65\nRoamRetryInterval=20/' "$IWD_CONF"
+echo "iwd roaming settings written to $IWD_CONF."
+
+# Restart iwd so the new thresholds apply now. This drops WiFi briefly, so wait
+# for the connection to come back before the firmware step needs the network.
+if systemctl is-active --quiet iwd; then
+    echo "Restarting iwd..."
+    systemctl restart iwd
+    sleep 3
+    ELAPSED=0
+    while ! ping -c 1 -W 2 8.8.8.8 &>/dev/null; do
+        sleep 2
+        ELAPSED=$((ELAPSED + 2))
+        if [ "$ELAPSED" -ge 60 ]; then
+            echo "WARNING: Network did not come back within 60s of restarting iwd."
+            break
+        fi
+        echo "  Waiting for network... (${ELAPSED}s)"
+    done
+    [ "$ELAPSED" -lt 60 ] && echo "iwd restarted; network is back."
+fi
+
 #Remove GNOME keyrings for user odoo
 
 rm -rf /home/odoo/.local/share/keyrings/*
