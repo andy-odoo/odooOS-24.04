@@ -250,16 +250,16 @@ fi
 
 #Add PostgreSQL apt repository (repo only — server not installed)
 
-install -d /usr/share/postgresql-common/pgdg
-curl -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc --fail \
+install -d /etc/apt/keyrings
+curl -o /etc/apt/keyrings/apt.postgresql.org.asc --fail \
     https://www.postgresql.org/media/keys/ACCC4CF8.asc
-if [ ! -s /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc ]; then
+if [ ! -s /etc/apt/keyrings/apt.postgresql.org.asc ]; then
     echo "ERROR: Failed to download PostgreSQL GPG key. Skipping PostgreSQL repo."
 else
     . /etc/os-release
     # Use UBUNTU_CODENAME on Mint (VERSION_CODENAME is the Mint codename, e.g. "wilma")
     PGDG_CODENAME="${UBUNTU_CODENAME:-$VERSION_CODENAME}"
-    echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt ${PGDG_CODENAME}-pgdg main" \
+    echo "deb [signed-by=/etc/apt/keyrings/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt ${PGDG_CODENAME}-pgdg main" \
         > /etc/apt/sources.list.d/pgdg.list
     echo "PostgreSQL repository configured."
 fi

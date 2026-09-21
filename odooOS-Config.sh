@@ -275,13 +275,13 @@ fi
 
 #Add PostgreSQL apt repository (repo only — server not installed)
 
-install -d /usr/share/postgresql-common/pgdg
-curl -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc --fail https://www.postgresql.org/media/keys/ACCC4CF8.asc
-if [ ! -s /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc ]; then
+install -d /etc/apt/keyrings
+curl -o /etc/apt/keyrings/apt.postgresql.org.asc --fail https://www.postgresql.org/media/keys/ACCC4CF8.asc
+if [ ! -s /etc/apt/keyrings/apt.postgresql.org.asc ]; then
     echo "ERROR: Failed to download PostgreSQL GPG key. Skipping PostgreSQL repo."
 else
     . /etc/os-release
-    echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $VERSION_CODENAME-pgdg main" > /etc/apt/sources.list.d/pgdg.list
+    echo "deb [signed-by=/etc/apt/keyrings/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $VERSION_CODENAME-pgdg main" > /etc/apt/sources.list.d/pgdg.list
     echo "PostgreSQL repository configured."
 fi
 
@@ -395,6 +395,10 @@ while IFS= read -r f; do apt install -y "$f" < /dev/null; done < ./deb_install.t
 if [ "$KEEP_DEV_TOOLS" = "no" ]; then
     echo "Removing Software Development tools (role does not require them)..."
     apt purge -y codium geany vim-gtk3 'pgadmin4*' sqlitebrowser neovim 2>/dev/null || true
+    #Nothing PostgreSQL-related stays on non-developer laptops: packages, repos and keys
+    apt purge -y 'postgresql*' 2>/dev/null || true
+    rm -f /etc/apt/sources.list.d/pgdg.list /etc/apt/sources.list.d/pgadmin4.sources
+    rm -f /etc/apt/keyrings/apt.postgresql.org.asc /etc/apt/keyrings/packages-pgadmin-org.gpg
     apt autoremove -y
     echo "Software Development tools removed."
 fi
