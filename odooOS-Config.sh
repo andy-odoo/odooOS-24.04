@@ -965,6 +965,20 @@ echo "Defaults pwfeedback" > /etc/sudoers.d/pwfeedback
 chmod 440 /etc/sudoers.d/pwfeedback
 echo "Sudo password feedback enabled."
 
+#Never offer a release upgrade (e.g. to 26.04 LTS) in Software Updater — base image ships Prompt=lts
+#Also blocks do-release-upgrade; set Prompt=lts again to upgrade a machine deliberately
+
+RELEASE_UPGRADES=/etc/update-manager/release-upgrades
+if grep -q '^Prompt=' "$RELEASE_UPGRADES" 2>/dev/null; then
+    sed -i 's/^Prompt=.*/Prompt=never/' "$RELEASE_UPGRADES"
+else
+    mkdir -p /etc/update-manager
+    printf '[DEFAULT]\nPrompt=never\n' > "$RELEASE_UPGRADES"
+fi
+# Drop the cached "new release available" notice shown at terminal login
+rm -f /var/lib/ubuntu-release-upgrader/release-upgrade-available
+echo "Release upgrade prompt disabled (Prompt=never)."
+
 
 #Set iwd roaming thresholds in /etc/iwd/main.conf, keeping any other settings already there
 
