@@ -54,7 +54,7 @@ apps=['org.gimp.GIMP.desktop', 'org.darktable.darktable.desktop', 'org.inkscape.
 name='Graphics'
 
 [org/gnome/desktop/app-folders/folders/5d44aacd-b163-48e7-83a2-276ee3353c2c]
-apps=['code.desktop', 'codium.desktop', 'sublime_text.desktop', 'geany.desktop', 'nvim.desktop', 'vim.desktop', 'pgadmin4.desktop', 'sqlitebrowser.desktop', 'edu.mit.Scratch.desktop']
+apps=['com.microsoft.VSCode.desktop', 'code.desktop', 'codium.desktop', 'sublime_text.desktop', 'geany.desktop', 'nvim.desktop', 'vim.desktop', 'pgadmin4.desktop', 'sqlitebrowser.desktop', 'edu.mit.Scratch.desktop']
 name='Programming'
 
 [org/gnome/desktop/app-folders/folders/835fe221-1e4b-49cd-8d84-5aa4b8349ec4]

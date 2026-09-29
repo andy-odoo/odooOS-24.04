@@ -566,7 +566,7 @@ apps=['audacity.desktop', 'com.obsproject.Studio.desktop', 'org.shotcut.Shotcut.
 name='Sound & Video'
 
 [org/gnome/desktop/app-folders/folders/Programming]
-apps=['code.desktop', 'nvim.desktop', 'pgadmin4.desktop', 'sqlitebrowser.desktop', 'edu.mit.Scratch.desktop']
+apps=['com.microsoft.VSCode.desktop', 'code.desktop', 'nvim.desktop', 'pgadmin4.desktop', 'sqlitebrowser.desktop', 'edu.mit.Scratch.desktop']
 name='Programming'
 
 [org/gnome/desktop/app-folders/folders/Utilities]
